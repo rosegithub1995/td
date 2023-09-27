@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TerraDownloader</string>
+    <string name="enter_url_string">Enter TerraBox Url</string>
 </resources>
