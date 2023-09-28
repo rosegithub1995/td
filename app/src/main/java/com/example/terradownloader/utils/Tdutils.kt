@@ -1,7 +1,10 @@
 package com.example.terradownloader.utils
 
 import android.content.Context
+import android.webkit.MimeTypeMap
 import android.widget.Toast
+import org.json.JSONException
+import org.json.JSONObject
 import java.net.MalformedURLException
 import java.net.URL
 import java.text.SimpleDateFormat
@@ -19,6 +22,37 @@ object Tdutils {
         }
     }
 
+
+    fun getFileMimeType(jsonResponse: String): String {
+        var mMimeType=""
+        try {
+
+
+            // Extract the file extension from the server filename
+            val fileExtension = MimeTypeMap.getFileExtensionFromUrl(jsonResponse)
+
+            // Get the MIME type based on the file extension
+            val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension)
+            if (mimeType != null) {
+                mMimeType=mimeType
+            };
+            return mMimeType
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+
+        return mMimeType; // Return null if there was an error or the MIME type couldn't be determined
+    }
+    fun getFileName(jsonResponse: String): String {
+        var mFileName=jsonResponse
+        try {
+            return mFileName
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+
+        return mFileName;
+    }
 
     fun isValidUrl(url: String): Boolean {
         try {

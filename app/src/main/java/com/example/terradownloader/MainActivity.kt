@@ -10,6 +10,7 @@ import android.util.Log.d
 import android.widget.Button
 import com.example.terradownloader.interfaces.TDService
 import com.example.terradownloader.model.TDPojo
+import com.example.terradownloader.utils.AndroidDownloader
 import com.example.terradownloader.utils.Tdutils.checkUrlPatterns
 import com.example.terradownloader.utils.Tdutils.displayToastLong
 import com.example.terradownloader.utils.Tdutils.displayToastless
@@ -34,6 +35,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var clipboardManager: ClipboardManager;
     private lateinit var item: ClipData.Item;
 
+    private lateinit var mDownloader: AndroidDownloader
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -46,16 +49,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        mDownloader = AndroidDownloader(this);
         pasteButton.setOnClickListener {
             //Toast.makeText(baseContext, "URL" + pasteUrl, Toast.LENGTH_LONG).show();
             textFieldEnterUrl.setText(pasteUrl);
         }
         // Additional code to be executed when the activity starts
         downloadButton.setOnClickListener {
-            if (pasteUrl.isNotBlank())
-                handleDownloadClick(pasteUrl)
+            if (pasteUrl.isNotBlank()) handleDownloadClick(pasteUrl)
             else {
-                displayToastLong(baseContext, "Not Valid Url");
+                //displayToastLong(baseContext, "Not Valid Url");
             }
         }
 
@@ -64,11 +67,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         var isAndroid10Plus: Boolean = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q);
-        if (!isAndroid10Plus)
-            return;
+        if (!isAndroid10Plus) return;
         clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager;
         if (!clipboardManager.hasPrimaryClip()) {
-            d("Clip Board data", "Not Valid Data");
+            //  d("Clip Board data", "Not Valid Data");
+            displayToastless(baseContext, "Not Valid Data");
             return;
         }
         pasteUrl = clipboardManager.primaryClip?.getItemAt(0)?.text as String;
@@ -80,20 +83,24 @@ class MainActivity : AppCompatActivity() {
             //Log.d("Valid Url regex", "Regex match for terabox");
             //displayToastless(baseContext,"Valid tera box Url");
             urlId = geturlID(text);
-            d("S param from terabox", urlId);
+            //d("S param from terabox", urlId);
             val dlink = TDService.tdInstance.getTdlink(urlId);
-            d("url calld", dlink.toString());
+            //d("url calld", dlink.toString());
             dlink.enqueue(object : Callback<TDPojo> {
                 override fun onResponse(call: Call<TDPojo>, response: Response<TDPojo>) {
                     if (response.isSuccessful) {
                         val responseBody = response.body()!!
-                        d("Response data", responseBody.toString());
+                        val dlink = responseBody.dlink.toString();
+                        val server_file_name=responseBody.server_filename.toString();
+                        mDownloader.downloadFile(dlink,server_file_name);
+                        //d("Response data", responseBody.toString());
+                        //d("d link", dlink);
                     }
-
                 }
 
                 override fun onFailure(call: Call<TDPojo>, t: Throwable) {
-                    d("Error in retofit call", "Retrofit call error ", t);
+                    //d("Error in retrofit call", "Retrofit call error ", t);
+                    displayToastLong(baseContext, "Could not fetch details");
 
                 }
             })
