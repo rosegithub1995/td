@@ -1,28 +1,23 @@
 package com.example.terradownloader
 
 import android.content.ClipData
-import android.content.ClipDescription.MIMETYPE_TEXT_PLAIN
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
-import android.util.Log
 import android.util.Log.d
 import android.widget.Button
-import android.widget.Toast
+import com.example.terradownloader.interfaces.TDService
+import com.example.terradownloader.model.TDPojo
 import com.example.terradownloader.utils.Tdutils.checkUrlPatterns
 import com.example.terradownloader.utils.Tdutils.displayToastLong
 import com.example.terradownloader.utils.Tdutils.displayToastless
 import com.example.terradownloader.utils.Tdutils.geturlID
 import com.google.android.material.textfield.TextInputEditText
-
-import java.net.URL
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.net.MalformedURLException
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class MainActivity : AppCompatActivity() {
@@ -60,12 +55,11 @@ class MainActivity : AppCompatActivity() {
             if (pasteUrl.isNotBlank())
                 handleDownloadClick(pasteUrl)
             else {
-                displayToastLong(baseContext,"Not Valid Url");
+                displayToastLong(baseContext, "Not Valid Url");
             }
         }
 
     }
-
 
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -86,31 +80,34 @@ class MainActivity : AppCompatActivity() {
             //Log.d("Valid Url regex", "Regex match for terabox");
             //displayToastless(baseContext,"Valid tera box Url");
             urlId = geturlID(text);
+            d("S param from terabox", urlId);
+            val dlink = TDService.tdInstance.getTdlink(urlId);
+            d("url calld", dlink.toString());
+            dlink.enqueue(object : Callback<TDPojo> {
+                override fun onResponse(call: Call<TDPojo>, response: Response<TDPojo>) {
+                    if (response.isSuccessful) {
+                        val responseBody = response.body()!!
+                        d("Response data", responseBody.toString());
+                    }
 
+                }
+
+                override fun onFailure(call: Call<TDPojo>, t: Throwable) {
+                    d("Error in retofit call", "Retrofit call error ", t);
+
+                }
+            })
             //make the api call here
-        }
-        else{
-            displayToastless(baseContext,"Invalid Terabox URL");
+        } else {
+            displayToastless(baseContext, "Invalid Terabox URL");
         }
         //val link = textFieldEnterUrl.text.toString()
     }
-
-
 
 
 //    val epochTimestamp = 1632591600L // Replace with your desired epoch timestamp
 //    val formattedDate = convertEpochToDateTime(epochTimestamp)
 //    println(formattedDate)
 
-
-//    fun main() {
-//        val inputUrl = "https://www.example.com" // Replace with the URL you want to check
-//        val matchesPattern = checkUrlPatterns(inputUrl)
-//        if (matchesPattern) {
-//            println("$inputUrl matches one of the patterns.")
-//        } else {
-//            println("$inputUrl does not match any of the patterns.")
-//        }
-//    }
 }
 

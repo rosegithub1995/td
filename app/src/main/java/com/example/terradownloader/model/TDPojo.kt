@@ -14,7 +14,7 @@ data class TDPojo(
     val server_mtime: String,
     val size: String,
     val dlink: String,
-    val thumbs: List<Thumbs>,
+    val thumbs: Thumbs,
     val emd5: String
 )
 
