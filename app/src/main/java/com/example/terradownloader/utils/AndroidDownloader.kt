@@ -24,6 +24,9 @@ class AndroidDownloader(private val context: Context):Downloader {
         downloadRequest.setMimeType(fileMimeType)
         downloadRequest.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         downloadRequest.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,fileName);
+        downloadRequest.setTitle(fileName);
+        downloadRequest.setDescription("Downloading");
+        
         return downloadManager.enqueue(downloadRequest);
 
     }

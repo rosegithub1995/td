@@ -14,6 +14,7 @@ class DownloadCompleteReceiver: BroadcastReceiver() {
             val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID,-1L);
             if(id !=-1L){
                 val query= id?.let { DownloadManager.Query().setFilterById(it) };
+                Tdutils.displayToastless(context,"Download completed successfully");
                 d("Download ID finished", id.toString());
             }
             context?.sendBroadcast(Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE"))

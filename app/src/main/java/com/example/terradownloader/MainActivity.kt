@@ -56,16 +56,17 @@ class MainActivity : AppCompatActivity() {
             clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager;
             if (!clipboardManager.hasPrimaryClip()) {
                 //  d("Clip Board data", "Not Valid Data");
-                if(!clipboardManager.primaryClipDescription?.hasMimeType(MIMETYPE_TEXT_PLAIN)!!)
-                    displayToastless(baseContext, "Not Valid Data");
+                if (!clipboardManager.primaryClipDescription?.hasMimeType(MIMETYPE_TEXT_PLAIN)!!) displayToastless(
+                    baseContext,
+                    "Not Valid Data"
+                );
             }
             pasteUrl = clipboardManager.primaryClip?.getItemAt(0)?.text as String;
             textFieldEnterUrl.setText(pasteUrl);
         }
         // Additional code to be executed when the activity starts
         downloadButton.setOnClickListener {
-            if (pasteUrl.isEmpty())
-                displayToastless(baseContext,"Not valid Data");
+            if (pasteUrl.isEmpty()) displayToastless(baseContext, "Not valid Data");
             else {
                 handleDownloadClick(pasteUrl)
                 //displayToastLong(baseContext, "Not Valid Url");
@@ -88,9 +89,10 @@ class MainActivity : AppCompatActivity() {
                     if (response.isSuccessful) {
                         val responseBody = response.body()!!
                         val dlink = responseBody.dlink.toString();
-                        val server_file_name=responseBody.server_filename.toString();
-                        mDownloader.downloadFile(dlink,server_file_name);
-                        displayToastless(baseContext,"Download starting");
+                        val server_file_name = responseBody.server_filename.toString();
+                        val id = mDownloader.downloadFile(dlink, server_file_name);
+                        d("download Id", id.toString());
+                        displayToastless(baseContext, "Download starting");
                         //d("Response data", responseBody.toString());
                         //d("d link", dlink);
                     }
