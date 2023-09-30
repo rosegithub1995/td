@@ -7,18 +7,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.ProgressBar
-import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.terradownloader.R // Import your project's R class here
+import com.example.terradownloader.interfaces.ItemClickListener
 import com.example.terradownloader.model.TDDownloadModel
-
-interface ItemClickListener {
-    fun onCLickItem(filePath: String)
-    fun onShareClick(downloadModel: TDDownloadModel)
-}
+import org.w3c.dom.Text
 
 class TDAdapter(
     var context: Context,
@@ -35,21 +32,24 @@ class TDAdapter(
     }
 
     inner class DownloadViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var file_title: TextView
-        var file_size: TextView
-        var file_progress: ProgressBar
-        var pause_resume: Button
+        lateinit var textViewFileTitle: TextView
+        lateinit var textViewFileSize: TextView
+        lateinit var textViewFilePercentageCompleted: TextView;
+        lateinit var progressBarFileProgress: ProgressBar
+        lateinit var buttonPauseResume: Button
 
         //var sharefile: Button
-        var file_status: TextView
-        var main_rel: RelativeLayout
+        lateinit var textViewFileStatus: TextView
+        var main_rel: LinearLayout
 
         init {
-            file_title = itemView.findViewById(R.id.text_view_rc_file_name)
-            file_size = itemView.findViewById(R.id.text_view_rc_file_size)
-            file_status = itemView.findViewById(R.id.text_view_rc_file_status)
-            file_progress = itemView.findViewById(R.id.progress_bar_rc_file_progress)
-            pause_resume = itemView.findViewById(R.id.button_rc_pause_resume)
+            textViewFileTitle = itemView.findViewById(R.id.text_view_rc_file_name)
+            textViewFileSize = itemView.findViewById(R.id.text_view_rc_file_size)
+            textViewFileStatus = itemView.findViewById(R.id.text_view_rc_file_status)
+            progressBarFileProgress = itemView.findViewById(R.id.progress_bar_rc_file_progress)
+            textViewFilePercentageCompleted =
+                itemView.findViewById(R.id.text_view_rc_file_percentage_completed)
+            buttonPauseResume = itemView.findViewById(R.id.button_rc_pause_resume)
             main_rel = itemView.findViewById(R.id.main_rel)
             //sharefile = itemView.findViewById(R.id.sharefile)
         }
@@ -63,40 +63,42 @@ class TDAdapter(
 
     override fun onBindViewHolder(holder: DownloadViewHolder, position: Int) {
         val downloadModel: TDDownloadModel = downloadModels[position]
-        holder.file_title.text = downloadModel.fileName
-        holder.file_status.text = downloadModel.status
-        holder.file_progress.progress = downloadModel.progress.toInt()
-        holder.file_size.text = "Downloaded : " + downloadModel.fileSize
-        if (downloadModel.getIsPaused()) {
-            holder.pause_resume.text = "RESUME"
+        holder.textViewFileTitle.text = downloadModel.mFileName
+        holder.textViewFileStatus.text = downloadModel.mStatus
+        holder.progressBarFileProgress.progress = downloadModel.mProgress.toInt()
+        holder.textViewFilePercentageCompleted.text =
+            downloadModel.mProgress.toInt().toString() + "% Completed";
+        holder.textViewFileSize.text = "Size : " + downloadModel.mFileSize
+        if (downloadModel.getmIsPaused()) {
+            holder.buttonPauseResume.text = "Resume"
         } else {
-            holder.pause_resume.text = "PAUSE"
+            holder.buttonPauseResume.text = "Pause"
         }
-        if (downloadModel.status.equals("RESUME", ignoreCase = true)) {
-            holder.file_status.text = "Running"
+        if (downloadModel.mStatus.equals("Resume", ignoreCase = true)) {
+            holder.textViewFileStatus.text = "Downloading"
         }
-        holder.pause_resume.setOnClickListener {
-            if (downloadModel.getIsPaused()) {
-                downloadModel.setIsPaused(false)
-                holder.pause_resume.text = "PAUSE"
-                downloadModel.setStatus("RESUME")
-                holder.file_status.text = "Running"
+        holder.buttonPauseResume.setOnClickListener {
+            if (downloadModel.getmIsPaused()) {
+                downloadModel.setmIsPaused(false)
+                holder.buttonPauseResume.text = "Pause"
+                downloadModel.setmStatus("Resume")
+                holder.textViewFileStatus.text = "Downloading"
                 if (!resumeDownload(downloadModel)) {
                     Toast.makeText(context, "Failed to Resume", Toast.LENGTH_SHORT).show()
                 }
                 notifyItemChanged(position)
             } else {
-                downloadModel.setIsPaused(true)
-                holder.pause_resume.text = "RESUME"
-                downloadModel.setStatus("PAUSE")
-                holder.file_status.text = "PAUSE"
+                downloadModel.setmIsPaused(true)
+                holder.buttonPauseResume.text = "Resume"
+                downloadModel.setmStatus("Pause")
+                holder.textViewFileStatus.text = "Pause"
                 if (!pauseDownload(downloadModel)) {
                     Toast.makeText(context, "Failed to Pause", Toast.LENGTH_SHORT).show()
                 }
                 notifyItemChanged(position)
             }
         }
-        holder.main_rel.setOnClickListener { clickListener.onCLickItem(downloadModel.filePath) }
+        holder.main_rel.setOnClickListener { clickListener.onCLickItem(downloadModel.mFilePath) }
         //holder.sharefile.setOnClickListener { clickListener.onShareClick(downloadModel) }
     }
 
@@ -109,7 +111,7 @@ class TDAdapter(
                 Uri.parse("content://downloads/my_downloads"),
                 contentValues,
                 "title=?",
-                arrayOf(downloadModel.getFileName())
+                arrayOf(downloadModel.getmFileName())
             )
         } catch (e: Exception) {
             e.printStackTrace()
@@ -126,7 +128,7 @@ class TDAdapter(
                 Uri.parse("content://downloads/my_downloads"),
                 contentValues,
                 "title=?",
-                arrayOf(downloadModel.getFileName())
+                arrayOf(downloadModel.getmFileName())
             )
         } catch (e: Exception) {
             e.printStackTrace()

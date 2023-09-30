@@ -1,79 +1,78 @@
 package com.example.terradownloader.model
 
 class TDDownloadModel {
-    //For displaying in Recycler View
+    // For displaying in Recycler View
 
-    var downloadId: Long = 0;
-    var id: Long = 0;// for custom download id
-    var fileName: String = "";
-    var fileSize: Long = 0;
-    var filePath: String = "";
-    var status: String = "";
-    var progress: String = "";
-    var isPaused: Boolean = false;
+    var mDownloadId: Long = 0
+    var mId: Long = 0 // for custom download id
+    var mFileName: String = ""
+    var mFileSize: String = ""
+    var mFilePath: String = ""
+    var mStatus: String = ""
+    var mProgress: String = ""
+    var mIsPaused: Boolean = false
 
-    fun setIsPaused(paused: Boolean) {
-        this.isPaused = paused
+    fun setmIsPaused(paused: Boolean) {
+        this.mIsPaused = paused
     }
 
-    fun setStatus(status: String) {
-        this.status = status
+    fun setmStatus(status: String) {
+        this.mStatus = status
     }
 
-    fun setFilePath(filePath: String) {
-        this.filePath = filePath
+    fun setmFilePath(filePath: String) {
+        this.mFilePath = filePath
     }
 
-    fun setFileName(fileName: String) {
-        this.fileName = fileName
+    fun setmFileName(fileName: String) {
+        this.mFileName = fileName
     }
 
-    fun setFileSize(fileSize: Long) {
-        this.fileSize = fileSize
+    fun setmFileSize(fileSize: String) {
+        this.mFileSize = fileSize
     }
 
-    fun setProgress(progress: String) {
-        this.progress = progress
+    fun setmProgress(progress: String) {
+        this.mProgress = progress
     }
 
-    fun setDownloadId(downloadId: Long) {
-        this.downloadId = downloadId
+    fun setmDownloadId(downloadId: Long) {
+        this.mDownloadId = downloadId
     }
 
-    fun setId(id: Long) {
-        this.id = id
+    fun setmId(id: Long) {
+        this.mId = id
     }
 
-    fun getDownloadId(): Long {
-        return downloadId
+    fun getmDownloadId(): Long {
+        return mDownloadId
     }
 
-    fun getId(): Long {
-        return id
+    fun getmId(): Long {
+        return mId
     }
 
-    fun getFileName(): String {
-        return fileName
+    fun getmFileName(): String {
+        return mFileName
     }
 
-    fun getFileSize(): Long {
-        return fileSize
+    fun getmFileSize(): String {
+        return mFileSize
     }
 
-    fun getFilePath(): String {
-        return filePath
+    fun getmFilePath(): String {
+        return mFilePath
     }
 
-    fun getStatus(): String {
-        return status
+    fun getmStatus(): String {
+        return mStatus
     }
 
-    fun getProgress(): String {
-        return progress
+    fun getmProgress(): String {
+        return mProgress
     }
 
-    fun getIsPaused(): Boolean {
-        return isPaused
+    fun getmIsPaused(): Boolean {
+        return mIsPaused
     }
-
 }
