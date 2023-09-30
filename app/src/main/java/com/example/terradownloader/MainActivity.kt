@@ -1,6 +1,7 @@
 package com.example.terradownloader
 
 import android.content.ClipData
+import android.content.ClipDescription.MIMETYPE_TEXT_PLAIN
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
@@ -52,30 +53,25 @@ class MainActivity : AppCompatActivity() {
         mDownloader = AndroidDownloader(this);
         pasteButton.setOnClickListener {
             //Toast.makeText(baseContext, "URL" + pasteUrl, Toast.LENGTH_LONG).show();
+            clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager;
+            if (!clipboardManager.hasPrimaryClip()) {
+                //  d("Clip Board data", "Not Valid Data");
+                if(!clipboardManager.primaryClipDescription?.hasMimeType(MIMETYPE_TEXT_PLAIN)!!)
+                    displayToastless(baseContext, "Not Valid Data");
+            }
+            pasteUrl = clipboardManager.primaryClip?.getItemAt(0)?.text as String;
             textFieldEnterUrl.setText(pasteUrl);
         }
         // Additional code to be executed when the activity starts
         downloadButton.setOnClickListener {
-            if (pasteUrl.isNotBlank()) handleDownloadClick(pasteUrl)
+            if (pasteUrl.isEmpty())
+                displayToastless(baseContext,"Not valid Data");
             else {
+                handleDownloadClick(pasteUrl)
                 //displayToastLong(baseContext, "Not Valid Url");
             }
         }
 
-    }
-
-
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        var isAndroid10Plus: Boolean = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q);
-        if (!isAndroid10Plus) return;
-        clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager;
-        if (!clipboardManager.hasPrimaryClip()) {
-            //  d("Clip Board data", "Not Valid Data");
-            displayToastless(baseContext, "Not Valid Data");
-            return;
-        }
-        pasteUrl = clipboardManager.primaryClip?.getItemAt(0)?.text as String;
-        super.onWindowFocusChanged(hasFocus)
     }
 
     private fun handleDownloadClick(text: String) {
@@ -85,6 +81,7 @@ class MainActivity : AppCompatActivity() {
             urlId = geturlID(text);
             //d("S param from terabox", urlId);
             val dlink = TDService.tdInstance.getTdlink(urlId);
+
             //d("url calld", dlink.toString());
             dlink.enqueue(object : Callback<TDPojo> {
                 override fun onResponse(call: Call<TDPojo>, response: Response<TDPojo>) {
@@ -93,6 +90,7 @@ class MainActivity : AppCompatActivity() {
                         val dlink = responseBody.dlink.toString();
                         val server_file_name=responseBody.server_filename.toString();
                         mDownloader.downloadFile(dlink,server_file_name);
+                        displayToastless(baseContext,"Download starting");
                         //d("Response data", responseBody.toString());
                         //d("d link", dlink);
                     }
