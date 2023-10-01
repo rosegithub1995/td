@@ -11,6 +11,8 @@ class TDDownloadModel {
     var mStatus: String = ""
     var mProgress: String = ""
     var mIsPaused: Boolean = false
+    var mDownloadUrl: String = "" // for dlink = https://d4.terabox.com/vunj
+    var mTeraboxFileUrl: String = "" // for url = https://terabox.com/s/buhnjio
 
     fun setmIsPaused(paused: Boolean) {
         this.mIsPaused = paused
@@ -74,5 +76,22 @@ class TDDownloadModel {
 
     fun getmIsPaused(): Boolean {
         return mIsPaused
+    }
+
+    fun getmDownloadUrl(): String {
+        return mDownloadUrl
+    }
+
+
+    fun setmDownloadUrl(downloadUrl: String) {
+        this.mDownloadUrl = downloadUrl
+    }
+
+    fun getmTeraboxFileUrl(): String {
+        return mTeraboxFileUrl
+    }
+
+    fun setmTeraboxFileUrl(teraboxFileUrl: String) {
+        this.mTeraboxFileUrl = teraboxFileUrl
     }
 }

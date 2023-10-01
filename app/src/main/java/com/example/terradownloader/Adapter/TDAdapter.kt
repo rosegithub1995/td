@@ -3,6 +3,7 @@ package com.example.terradownloader.Adapter
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
+import android.util.Log.d
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -66,6 +67,9 @@ class TDAdapter(
         holder.textViewFileTitle.text = downloadModel.mFileName
         holder.textViewFileStatus.text = downloadModel.mStatus
         holder.progressBarFileProgress.progress = downloadModel.mProgress.toInt()
+        if (downloadModel.mProgress.toInt() == 100) {
+            holder.buttonPauseResume.visibility = View.GONE;
+        }
         holder.textViewFilePercentageCompleted.text =
             downloadModel.mProgress.toInt().toString() + "% Completed";
         holder.textViewFileSize.text = "Size : " + downloadModel.mFileSize

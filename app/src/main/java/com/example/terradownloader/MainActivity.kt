@@ -1,6 +1,7 @@
 package com.example.terradownloader
 
 import DownloadStatusUtil
+import MyDatabaseHelper
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipDescription.MIMETYPE_TEXT_PLAIN
@@ -40,6 +41,7 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
     private lateinit var mRecyclerView: RecyclerView;
     private lateinit var urlId: String
     var pasteUrl: String = ""
+    private lateinit var dlink: String
 
     private lateinit var clipboardManager: ClipboardManager;
     private lateinit var item: ClipData.Item;
@@ -52,6 +54,9 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
     private var mDownloadPath: String = "downloads";
 
 
+    private lateinit var mMyDatabaseHelper: MyDatabaseHelper
+
+
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +67,7 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         downloadButton = findViewById(R.id.downloadButton)
         pasteButton = findViewById(R.id.pasteButton)
         mRecyclerView = findViewById(R.id.recycler_view);
+        mMyDatabaseHelper = MyDatabaseHelper(this);
 
 
         mTDAdapter = TDAdapter(this@MainActivity, downloadTDDownloadModel, this@MainActivity)
@@ -107,14 +113,14 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
             //displayToastless(baseContext,"Valid tera box Url");
             urlId = geturlID(text);
             //d("S param from terabox", urlId);
-            val dlink = TDService.tdInstance.getTdlink(urlId);
+            val dlinkFetchResponse = TDService.tdInstance.getTdlink(urlId);
 
             //d("url calld", dlink.toString());
-            dlink.enqueue(object : Callback<TDPojo> {
+            dlinkFetchResponse.enqueue(object : Callback<TDPojo> {
                 override fun onResponse(call: Call<TDPojo>, response: Response<TDPojo>) {
                     if (response.isSuccessful) {
                         val responseBody = response.body()!!
-                        val dlink = responseBody.dlink.toString();
+                        dlink = responseBody.dlink.toString();
                         mFileName = responseBody.server_filename.toString();
                         mFileSize = responseBody.size.toString();
                         //d("File name", mFileName);
@@ -153,6 +159,8 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         downloadStatusUtil.execute(downloadId.toString())
 
         val downloadModel = TDDownloadModel()
+        downloadModel.setmTeraboxFileUrl(pasteUrl)
+        downloadModel.setmDownloadUrl(dlink)
         downloadModel.setmId(11)
         downloadModel.setmStatus("Downloading")
         downloadModel.setmFileName(mFileName)
@@ -163,7 +171,8 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         downloadModel.setmFilePath(mDownloadPath)
 
         // Add the download model to your list
-        downloadTDDownloadModel.add(downloadModel)
+        downloadTDDownloadModel.add(0, downloadModel)
+        mMyDatabaseHelper.addToTeraboxDatabase(this, downloadModel)
 
         // Notify the adapter of the new download
         mTDAdapter.notifyItemInserted(downloadTDDownloadModel.size - 1)

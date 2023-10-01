@@ -12,13 +12,10 @@ class DownloadCompleteReceiver : BroadcastReceiver() {
     private lateinit var mDownloadManager: DownloadManager
     private lateinit var downloadTDDownloadModel: MutableList<TDDownloadModel>
     private lateinit var mTDAdapter: TDAdapter
-
-    fun init(downloadTDDownloadModel: MutableList<TDDownloadModel>, mTDAdapter: TDAdapter) {
-        this.downloadTDDownloadModel = downloadTDDownloadModel
-        this.mTDAdapter = mTDAdapter
-    }
+    private lateinit var myDatabaseHelper: MyDatabaseHelper
 
     override fun onReceive(context: Context?, intent: Intent?) {
+        myDatabaseHelper = context?.let { MyDatabaseHelper(it) } ?: return
         mDownloadManager = context?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         if (intent?.action == DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
             val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L)
@@ -30,7 +27,6 @@ class DownloadCompleteReceiver : BroadcastReceiver() {
                     // Update any other relevant information
                     // For example: downloadModel.setmProgress("100 % Downloaded")
                     // ...
-
                     // Notify your adapter of the changes
                     val position = downloadTDDownloadModel.indexOf(downloadModel)
                     if (position != -1) {
@@ -39,6 +35,7 @@ class DownloadCompleteReceiver : BroadcastReceiver() {
 
                     displayToastless(context, "Download completed successfully")
                     d("Download ID finished", id.toString())
+                    myDatabaseHelper.updateToTeraboxDatabase(context, downloadModel);
                 }
             }
             context?.sendBroadcast(Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE"))
