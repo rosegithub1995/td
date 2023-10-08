@@ -1,6 +1,7 @@
 package com.example.terradownloader.interfaces
 
-import com.example.terradownloader.model.TDDownloadModel
+import TDDownloadModel
+
 
 interface ItemClickListener {
     fun onCLickItem(file_path: String?)

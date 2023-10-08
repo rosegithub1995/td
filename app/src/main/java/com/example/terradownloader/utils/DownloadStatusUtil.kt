@@ -1,36 +1,37 @@
+
 import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.content.Context
 import android.database.Cursor
-import android.util.Log.d
-import com.example.terradownloader.model.TDDownloadModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class DownloadStatusUtil(
-    private val context: Context,
-    private val mDownloadModel: MutableList<TDDownloadModel>
+    private val mContext: Context,
+    private val mDownloadModelList: MutableList<TDDownloadModel>
 ) {
-
     private var job: Job? = null
+    private var previousProgress = 0 // Initialize with 0
 
-    fun execute(downloadId: String) {
+    fun execute(downloadId: Long) {
         job = CoroutineScope(Dispatchers.IO).launch {
-            downloadFileProcess(downloadId)
+            downloadFileProgress(downloadId, mDownloadModelList)
         }
     }
 
     @SuppressLint("Range")
-    private suspend fun downloadFileProcess(downloadId: String) {
-        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+    private suspend fun downloadFileProgress(
+        downloadId: Long,
+        mDownloadModel: MutableList<TDDownloadModel>
+    ) {
+        val downloadManager = mContext.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         var downloading = true
 
         while (downloading) {
             val query = DownloadManager.Query()
-            query.setFilterById(downloadId.toLong())
+            query.setFilterById(downloadId)
             val cursor: Cursor = downloadManager.query(query)
             cursor.moveToFirst()
 
@@ -42,8 +43,6 @@ class DownloadStatusUtil(
             if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
                 downloading = false
             }
-            //d("Downloading progress", bytesDownloaded.toString() + "%")
-            //d("Downloading total size", totalSize.toString())
 
             val progress = ((bytesDownloaded * 100L) / totalSize).toInt()
             val status = getStatusMessage(cursor)
@@ -53,27 +52,24 @@ class DownloadStatusUtil(
             bytesIntoHumanReadable(bytesDownloaded.toLong())?.let {
                 status?.let { it1 ->
                     val dataModelToUpdate =
-                        mDownloadModel.find { it.mDownloadId == downloadId.toLong() }
+                        mDownloadModel.find { it.idCurrentlyDownloadingFromManager == downloadId }
                     if (dataModelToUpdate != null) {
-                        dataModelToUpdate.setmProgress(progress.toString())
+                        dataModelToUpdate.progress = progress.toString()
                         if (formattedFileSize != null) {
-                            dataModelToUpdate.setmFileSize(formattedFileSize)
+                            dataModelToUpdate.fileSize = formattedFileSize
                         }
-                        if(progress==100){
-                            dataModelToUpdate.setmStatus("Downloaded");
+                        if (progress == 100) {
+                            dataModelToUpdate.downloadStatus = "Downloaded"
                         }
-                    }
-                    if (formattedFileSize != null) {
-                        updateRealm(
-                            progress.toString(), formattedFileSize, it1
-                        )
                     }
                 }
             }
-            progressChangeListener?.invoke(progress.toString())
 
-            //d("File Status %", progress.toString())
-
+            // Check if progress has changed before invoking the listener
+            if (progress != previousProgress) {
+                progressChangeListener?.invoke(progress.toString())
+                previousProgress = progress // Update the previous progress
+            }
             cursor.close()
         }
     }
@@ -106,11 +102,5 @@ class DownloadStatusUtil(
             else -> "Unknown"
         }
         return msg
-    }
-
-    private suspend fun updateRealm(progress: String, fileSize: String, status: String) {
-        withContext(Dispatchers.IO) {
-            // Update your realm data here
-        }
     }
 }

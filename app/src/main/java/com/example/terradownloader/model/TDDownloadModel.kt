@@ -1,97 +1,59 @@
-package com.example.terradownloader.model
+import java.util.Date
 
 class TDDownloadModel {
     // For displaying in Recycler View
 
-    var mDownloadId: Long = 0
-    var mId: Long = 0 // for custom download id
-    var mFileName: String = ""
-    var mFileSize: String = ""
-    var mFilePath: String = ""
-    var mStatus: String = ""
-    var mProgress: String = ""
-    var mIsPaused: Boolean = false
-    var mDownloadUrl: String = "" // for dlink = https://d4.terabox.com/vunj
-    var mTeraboxFileUrl: String = "" // for url = https://terabox.com/s/buhnjio
-
-    fun setmIsPaused(paused: Boolean) {
-        this.mIsPaused = paused
+    // For displaying in Recycler View
+    enum class DownloadStatus {
+        PAUSED,
+        DOWNLOADING,
+        COMPLETED,
+        FAILED,
+        STARTED
     }
 
-    fun setmStatus(status: String) {
-        this.mStatus = status
-    }
+    // Id from the download manager
+    var idCurrentlyDownloadingFromManager: Long = -1L
 
-    fun setmFilePath(filePath: String) {
-        this.mFilePath = filePath
-    }
+    // Terabox file URL
+    var teraboxFileUrl: String = ""
 
-    fun setmFileName(fileName: String) {
-        this.mFileName = fileName
-    }
+    // The thumbnail URL for the post
+    var thumbnailUrl1: String = ""
 
-    fun setmFileSize(fileSize: String) {
-        this.mFileSize = fileSize
-    }
+    // The thumbnail URL for the post
+    var thumbnailUrl2: String = ""
 
-    fun setmProgress(progress: String) {
-        this.mProgress = progress
-    }
+    // The thumbnail URL for the post
+    var thumbnailUrl3: String = ""
 
-    fun setmDownloadId(downloadId: Long) {
-        this.mDownloadId = downloadId
-    }
+    // The download link of the file it is dlink from the response
+    var downloadFileUrl: String = ""
 
-    fun setmId(id: Long) {
-        this.mId = id
-    }
+    // File name
+    var fileName: String = "xyz"
 
-    fun getmDownloadId(): Long {
-        return mDownloadId
-    }
+    // File size
+    var fileSize: String = "-1B"
 
-    fun getmId(): Long {
-        return mId
-    }
+    // File path
+    var filePath: String = "downloads"
 
-    fun getmFileName(): String {
-        return mFileName
-    }
+    // Download status
+    var downloadStatus: DownloadStatus = DownloadStatus.STARTED  // Set to the desired initial status
 
-    fun getmFileSize(): String {
-        return mFileSize
-    }
+    // Download progress
+    var progress: String = "0"
 
-    fun getmFilePath(): String {
-        return mFilePath
-    }
+    // Is download paused
+    var isPaused: Boolean = false
 
-    fun getmStatus(): String {
-        return mStatus
-    }
+    // Download starting date
+    var downloadStartingDate: Date = Date()
 
-    fun getmProgress(): String {
-        return mProgress
-    }
+    // Download finishing date (insert like Date() because Converter will convert automatically)
+    var downloadFinishingDate: Date = Date()
 
-    fun getmIsPaused(): Boolean {
-        return mIsPaused
-    }
-
-    fun getmDownloadUrl(): String {
-        return mDownloadUrl
-    }
-
-
-    fun setmDownloadUrl(downloadUrl: String) {
-        this.mDownloadUrl = downloadUrl
-    }
-
-    fun getmTeraboxFileUrl(): String {
-        return mTeraboxFileUrl
-    }
-
-    fun setmTeraboxFileUrl(teraboxFileUrl: String) {
-        this.mTeraboxFileUrl = teraboxFileUrl
-    }
+    // File upload date (fetch from the URL response like dlink)
+    var fileUploadDate: Long = 0
 }

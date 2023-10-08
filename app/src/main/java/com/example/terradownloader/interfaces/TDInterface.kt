@@ -14,18 +14,25 @@ const val apiKey = ""
 // Interface for your API
 interface TDInterface {
     @GET("getTDLink/{dynamicPath}")
-    fun getTdlink(@Path("dynamicPath") dynamicPath: String): Call<TDPojo>
+    suspend fun getTdlink(@Path("dynamicPath") dynamicPath: String): Call<TDPojo>
+
+    companion object {
+        @Volatile
+        private var tdInstance: TDInterface? = null
+        fun getTDRetrofitInstance(): TDInterface {
+            if (tdInstance == null) {
+                // Synchronized is for making it thread safety.
+                synchronized(this) {
+                    val retrofit = Retrofit.Builder()
+                        .baseUrl(BASE_URL)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                    tdInstance = retrofit.create(TDInterface::class.java)
+                }
+            }
+            return tdInstance!!
+        }
+    }
 }
 
 // Singleton object for Retrofit
-object TDService {
-    val tdInstance: TDInterface
-
-    init {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        tdInstance = retrofit.create(TDInterface::class.java)
-    }
-}

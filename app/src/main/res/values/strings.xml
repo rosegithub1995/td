@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">TerraDownloader</string>
     <string name="enter_url_string">Enter TerraBox Url</string>
+    <string name="text_currently_downloading">Downloading</string>
+    <string name="text_downloaded">Downloaded</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
