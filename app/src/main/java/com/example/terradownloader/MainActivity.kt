@@ -2,28 +2,39 @@ package com.example.terradownloader
 
 
 import TDDownloadModel
-import android.annotation.SuppressLint
-import android.content.ClipData
+import android.Manifest
 import android.content.ClipDescription.MIMETYPE_TEXT_PLAIN
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.example.terradownloader.Adapter.TabPagerAdapter
-import com.example.terradownloader.Database.DBTeraboxDatabase
-import com.example.terradownloader.Repository.TeraboxRepository
 import com.example.terradownloader.databinding.ActivityMainBinding
-import com.example.terradownloader.interfaces.ItemClickListener
-import com.example.terradownloader.utils.AndroidDownloader
+import com.example.terradownloader.interfaces.TDInterface
+import com.example.terradownloader.model.TDPojo
+import com.example.terradownloader.utils.Tdutils.checkUrlPatterns
+import com.example.terradownloader.utils.Tdutils.displayToastLong
 import com.example.terradownloader.utils.Tdutils.displayToastless
-import com.google.android.material.tabs.TabLayout
+import com.example.terradownloader.utils.Tdutils.geturlID
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
-class MainActivity : AppCompatActivity(), ItemClickListener {
+class MainActivity : AppCompatActivity() {
     companion object {
         private const val REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION = 1
     }
@@ -36,107 +47,132 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
     private lateinit var dlink: String
 
     private lateinit var clipboardManager: ClipboardManager;
-    private lateinit var item: ClipData.Item;
-
-    private lateinit var mDownloader: AndroidDownloader
     private var downloadTDDownloadModel: MutableList<TDDownloadModel> = ArrayList()
-    private lateinit var mRepository: TeraboxRepository
-    //private lateinit var mTDAdapter: TabPagerAdapter;
-
 
 
     private lateinit var mMainActivityMainBinding: ActivityMainBinding
 
 
-    private lateinit var mTabLayout: TabLayout;
-    private lateinit var mviewPager: ViewPager2;
-    private lateinit var mCurerentlyDownloadingFragment: CurrentDownloadingFragment;
-    private lateinit var mDownloadedFragment: DownloadedFragment;
-    private lateinit var mViewTabPagerAdapter: TabPagerAdapter;
-
-    private lateinit var mDBTeraboxDatabase: DBTeraboxDatabase
-
-
-    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         mMainActivityMainBinding = ActivityMainBinding.inflate(layoutInflater);
         setContentView(mMainActivityMainBinding.root);
-        mviewPager = findViewById(R.id.view_pager);
-        mTabLayout = findViewById(R.id.activity_main_tab_layout);
+        val viewPager: ViewPager2 = mMainActivityMainBinding.viewPager
+        setupViewPager(viewPager)
 
-        //Initialize Fragments and Adapters for ViewPager
-
-        mCurerentlyDownloadingFragment = CurrentDownloadingFragment();
-        mDownloadedFragment = DownloadedFragment()
-
-        mViewTabPagerAdapter = TabPagerAdapter(this);
-        mviewPager.adapter = mViewTabPagerAdapter;
-        mviewPager.offscreenPageLimit = 2;
-
-
-        supportFragmentManager.beginTransaction()
-            .add(R.id.activity_main_frame_layout, mCurerentlyDownloadingFragment)
-            .hide(mCurerentlyDownloadingFragment)
-            .add(R.id.activity_main_frame_layout, mDownloadedFragment).hide(mDownloadedFragment)
-            .commitNow();
-
-        TabLayoutMediator(
-            mTabLayout, mviewPager
-        ) { tab, position ->
+        val tabLayout = mMainActivityMainBinding.tabLayout
+        // Assuming you are using TabLayoutMediator for tab setup
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             when (position) {
-                0 -> {
-                    tab.text = getString(R.string.text_currently_downloading)
-                    tab.icon = getDrawable(R.drawable.baseline_download_for_offline_24)
-                    mCurerentlyDownloadingFragment
-                }// Customize tab titles as needed
-                1 -> {
-                    tab.text = getString(R.string.text_downloaded)
-                    tab.icon = getDrawable(R.drawable.baseline_file_download_done_24)
-                    mDownloadedFragment
-                }
-                // Add more tabs if necessary
+                0 -> tab.text = "Queued"
+                1 -> tab.text = "Downloaded"
             }
-        }.attach();
+        }.attach()
 
-        mRepository=(application as TerraMain).repository
 
         //Initlize the DB
         //To insert the data into DB that has suspend function you have to call using
-//        GlobalScope.launch {
-//            mDBTeraboxDatabase.currentlyDownloadingDAO().insertCurrentlyDownloadingItemToDatabase();
-//        }
-
-        //mDBTerabox.currentlyDownloadingDAO().insertCurrentlyDownloadingItemToDatabase();
-
-        //Getting the Data from Database,
 
 
-        // Initialize the views
-//        textFieldEnterUrl = findViewById(R.id.textField_enter_url)
-//        downloadButton = findViewById(R.id.downloadButton)
-//        pasteButton = findViewById(R.id.pasteButton)
-//        //mRecyclerView = findViewById(R.id.recycler_view);
-//        mMyDatabaseHelper = MyDatabaseHelper(this);
-//
-//        tabLayout = findViewById(R.id.activity_main_tab_layout)
-//        viewPager = findViewById(R.id.view_pager)
-//
-//        // Create an adapter that manages the recycler views for each tab
-//        val adapter = TabPagerAdapter(this)
-//
-//        // Set the adapter for the view pager
-//        viewPager.adapter = adapter
+        //Initialize the views
+        textFieldEnterUrl = mMainActivityMainBinding.textFieldEnterUrl;
+        downloadButton = mMainActivityMainBinding.downloadButton
+        pasteButton = mMainActivityMainBinding.pasteButton;
 
-//        // Set the tabs to match the adapter
-//        tabLayout.setupWithViewPager(viewPager)
-//
-//
-//        mTDAdapter = TDAdapter(this@MainActivity, downloadTDDownloadModel, this@MainActivity)
-//        mRecyclerView.setLayoutManager(LinearLayoutManager(this@MainActivity))
-//        mRecyclerView.setAdapter(mTDAdapter);
+        //Function that request permission for storage
+        requestStoragePermission()
 
+    }
+
+    private fun requestStoragePermission() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Permission is not granted
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+            ) {
+                displayStoragePermissionDialog()
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION
+                )
+
+                // REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        } else {
+            // Permission has already been granted
+        }
+    }
+    private fun displayStoragePermissionDialog(){
+        val builder = android.app.AlertDialog.Builder(this)
+        builder.setTitle("Storage Permission Required")
+        builder.setMessage("This app need storage permission to download files")
+        builder.setPositiveButton("Allow") { dialog, which ->
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION
+            )
+        }
+        builder.setNegativeButton("Deny") { dialog, which ->
+            dialog.dismiss()
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        //super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION -> {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    // Permission is granted. Continue the action or workflow
+                    // in your app.
+                    displayToastLong(baseContext, "Permission Granted")
+                } else {
+                    //Open Settings to enable permission manually
+                    Snackbar.make(
+                        mMainActivityMainBinding.root,
+                        "Enable Storage Permission",
+                        Snackbar.LENGTH_INDEFINITE
+                    )
+                        .setAction("Settings") {
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            val uri = Uri.fromParts("package", packageName, null)
+                            intent.data = uri
+                            startActivity(intent)
+                        }.show()
+                }
+                return
+            }
+            else -> {
+                // Ignore all other requests.
+            }
+        }
+    }
+
+    private fun setupViewPager(viewPager: ViewPager2) {
+        val adapter = TabPagerAdapter(supportFragmentManager, lifecycle)
+        viewPager.adapter = adapter
     }
 
 
@@ -163,58 +199,57 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
                 displayToastless(baseContext, "Can not get Copied Item");
             }
         }
-//        // Additional code to be executed when the activity starts
-//        downloadButton.setOnClickListener {
-//            if (pasteUrl.isEmpty()) displayToastless(baseContext, "Not valid Data");
-//            else {
-//                handleDownloadClick(pasteUrl)
-//                //displayToastLong(baseContext, "Not Valid Url");
-//            }
-//        }
+        // Additional code to be executed when the activity starts
+        downloadButton.setOnClickListener {
+            if (pasteUrl.isEmpty()) displayToastless(baseContext, "Not valid Data");
+            else {
+                handleDownloadClick(pasteUrl)
+                //displayToastLong(baseContext, "Not Valid Url");
+            }
+        }
 
     }
 
-//    private fun handleDownloadClick(text: String) {
-//        if (checkUrlPatterns(text)) {
-//            //Log.d("Valid Url regex", "Regex match for terabox");
-//            //displayToastless(baseContext,"Valid tera box Url");
-//            urlId = geturlID(text);
-//            //d("S param from terabox", urlId);
-//
-//            GlobalScope.launch {
-//                val dlinkFetchResponse = TDInterface.getTDRetrofitInstance().getTdlink(urlId);
-//                //d("url calld", dlink.toString());
-//                dlinkFetchResponse.enqueue(object : Callback<TDPojo> {
-//                    override fun onResponse(call: Call<TDPojo>, response: Response<TDPojo>) {
-//                        if (response.isSuccessful) {
-//                            val responseBody = response.body()!!
-//                            dlink = responseBody.dlink.toString();
-//                            mFileName = responseBody.server_filename.toString();
-//                            mFileSize = responseBody.size.toString();
-//                            //d("File name", mFileName);
-//                            startDownloadingFile(dlink);
-//                            //d("Response data", responseBody.toString());
-//                            //d("d link", dlink);
-//                        }
-//                    }
-//
-//                    override fun onFailure(call: Call<TDPojo>, t: Throwable) {
-//                        //d("Error in retrofit call", "Retrofit call error ", t);
-//                        displayToastLong(baseContext, "Could not fetch details");
-//
-//                    }
-//                })
-//                //make the api call here
-//            }
-//
-//        } else {
-//            displayToastless(baseContext, "Invalid Terabox URL");
-//        }
-//
-//
-//        //val link = textFieldEnterUrl.text.toString()
-//    }
+    private fun handleDownloadClick(text: String) {
+        if (checkUrlPatterns(text)) {
+            //Log.d("Valid Url regex", "Regex match for terabox");
+            //displayToastless(baseContext,"Valid tera box Url");
+            urlId = geturlID(text);
+            //d("S param from terabox", urlId);
 
+            GlobalScope.launch {
+                val dlinkFetchResponse = TDInterface.getTDRetrofitInstance().getTdlink(urlId);
+                //d("url calld", dlink.toString());
+                dlinkFetchResponse.enqueue(object : Callback<TDPojo> {
+                    override fun onResponse(call: Call<TDPojo>, response: Response<TDPojo>) {
+                        if (response.isSuccessful) {
+                            val responseBody = response.body()!!
+                            dlink = responseBody.dlink.toString();
+                            //mFileName = responseBody.server_filename.toString();
+                            //mFileSize = responseBody.size.toString();
+                            //d("File name", mFileName);
+                            //startDownloadingFile(dlink);
+                            //d("Response data", responseBody.toString());
+                            //d("d link", dlink);
+                        }
+                    }
+
+                    override fun onFailure(call: Call<TDPojo>, t: Throwable) {
+                        //d("Error in retrofit call", "Retrofit call error ", t);
+                        displayToastLong(baseContext, "Could not fetch details");
+
+                    }
+                })
+                //make the api call here
+            }
+
+        } else {
+            displayToastless(baseContext, "Invalid Terabox URL");
+        }
+
+
+        //val link = textFieldEnterUrl.text.toString()
+    }
 
 
 //    private fun updateDownloadStatus(downloadModel: TDDownloadModel) {
@@ -228,12 +263,6 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
 //        }
 //    }
 
-
-    override fun onCLickItem(file_path: String?) {
-    }
-
-    override fun onShareClick(downloadModel: TDDownloadModel?) {
-    }
 
     override fun onDestroy() {
         //Add the difference of the data back to the DB to both the Tables
