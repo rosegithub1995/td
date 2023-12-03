@@ -1,7 +1,6 @@
 package com.example.terradownloader
 
 
-import TDDownloadModel
 import android.Manifest
 import android.content.ClipDescription.MIMETYPE_TEXT_PLAIN
 import android.content.ClipboardManager
@@ -47,7 +46,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var dlink: String
 
     private lateinit var clipboardManager: ClipboardManager;
-    private var downloadTDDownloadModel: MutableList<TDDownloadModel> = ArrayList()
+    //private var downloadTDDownloadModel: MutableList<TDDownloadModel> = ArrayList()
 
 
     private lateinit var mMainActivityMainBinding: ActivityMainBinding
@@ -87,15 +86,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestStoragePermission() {
         if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                this, Manifest.permission.WRITE_EXTERNAL_STORAGE
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             // Permission is not granted
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    this, Manifest.permission.WRITE_EXTERNAL_STORAGE
                 )
             ) {
                 displayStoragePermissionDialog()
@@ -118,7 +115,8 @@ class MainActivity : AppCompatActivity() {
             // Permission has already been granted
         }
     }
-    private fun displayStoragePermissionDialog(){
+
+    private fun displayStoragePermissionDialog() {
         val builder = android.app.AlertDialog.Builder(this)
         builder.setTitle("Storage Permission Required")
         builder.setMessage("This app need storage permission to download files")
@@ -135,6 +133,7 @@ class MainActivity : AppCompatActivity() {
         val dialog = builder.create()
         dialog.show()
     }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -154,16 +153,16 @@ class MainActivity : AppCompatActivity() {
                         mMainActivityMainBinding.root,
                         "Enable Storage Permission",
                         Snackbar.LENGTH_INDEFINITE
-                    )
-                        .setAction("Settings") {
-                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                            val uri = Uri.fromParts("package", packageName, null)
-                            intent.data = uri
-                            startActivity(intent)
-                        }.show()
+                    ).setAction("Settings") {
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                        val uri = Uri.fromParts("package", packageName, null)
+                        intent.data = uri
+                        startActivity(intent)
+                    }.show()
                 }
                 return
             }
+
             else -> {
                 // Ignore all other requests.
             }
@@ -178,7 +177,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        mMainActivityMainBinding.pasteButton.setOnClickListener {
+        pasteButton.setOnClickListener {
             //Toast.makeText(baseContext, "URL" + pasteUrl, Toast.LENGTH_LONG).show();
             try {
 
@@ -201,7 +200,7 @@ class MainActivity : AppCompatActivity() {
         }
         // Additional code to be executed when the activity starts
         downloadButton.setOnClickListener {
-            if (pasteUrl.isEmpty()) displayToastless(baseContext, "Not valid Data");
+            if (pasteUrl.isEmpty()) displayToastless(baseContext, "Url is required");
             else {
                 handleDownloadClick(pasteUrl)
                 //displayToastLong(baseContext, "Not Valid Url");
