@@ -10,7 +10,8 @@ class TDDownloadModel {
         DOWNLOADING,
         COMPLETED,
         FAILED,
-        STARTED
+        STARTED,
+        FETCHING
     }
 
     // Id from the download manager
@@ -41,7 +42,8 @@ class TDDownloadModel {
     var filePath: String = "downloads"
 
     // Download status
-    var downloadStatus: DownloadStatus = DownloadStatus.STARTED  // Set to the desired initial status
+    var downloadStatus: DownloadStatus =
+        DownloadStatus.FETCHING  // Set to the desired initial status
 
     // Download progress
     var progress: String = "0"
