@@ -39,6 +39,11 @@ class CurrentDownloadingFragment : Fragment() {
         // Initialize the adapter and set it to the RecyclerView
         mQueuedAdapter = QueuedAdapter(viewModel.getDownloadItems())
         recyclerView.adapter = mQueuedAdapter
+
+        // Update the adapter data when the ViewModel provides the actual data
+//        viewModel.getDownloadItems().observe(viewLifecycleOwner, Observer { downloadItems ->
+//            mQueuedAdapter.updateData(downloadItems)
+//        })
     }
 
 }

@@ -6,10 +6,11 @@
     tools:context=".CurrentDownloadingFragment">
 
     <TextView
+        android:id="@+id/textview_no_items"
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Hello 1" />
+        android:text="Add Item" />
 
 
     <androidx.recyclerview.widget.RecyclerView

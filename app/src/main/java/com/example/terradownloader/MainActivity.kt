@@ -222,6 +222,7 @@ class MainActivity : AppCompatActivity() {
         if (checkUrlPatterns(text)) {
             //Log.d("Valid Url regex", "Regex match for terabox");
             //displayToastless(baseContext,"Valid tera box Url");
+            //add to the database and to the queued fragment
             urlId = geturlID(text);
             //d("S param from terabox", urlId);
 

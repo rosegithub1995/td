@@ -11,6 +11,7 @@ import com.example.terradownloader.DownloadedFragment
 class TabPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
     FragmentStateAdapter(fragmentManager, lifecycle) {
 
+        //TabPagerAdapter.kt is same as DovnloadListPagerAdapter
     override fun getItemCount(): Int {
         return 2
     }
