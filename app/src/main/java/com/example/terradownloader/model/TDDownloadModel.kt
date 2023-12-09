@@ -1,3 +1,4 @@
+package com.example.terradownloader.model
 import java.util.Date
 
 class TDDownloadModel {

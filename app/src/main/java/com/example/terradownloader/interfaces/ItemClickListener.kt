@@ -1,6 +1,6 @@
 package com.example.terradownloader.interfaces
 
-import TDDownloadModel
+import com.example.terradownloader.model.TDDownloadModel
 
 
 interface ItemClickListener {

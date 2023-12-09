@@ -95,7 +95,6 @@ class MainActivity : AppCompatActivity() {
                     this, Manifest.permission.WRITE_EXTERNAL_STORAGE
                 )
             ) {
-                displayStoragePermissionDialog()
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
@@ -116,23 +115,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayStoragePermissionDialog() {
-        val builder = android.app.AlertDialog.Builder(this)
-        builder.setTitle("Storage Permission Required")
-        builder.setMessage("This app need storage permission to download files")
-        builder.setPositiveButton("Allow") { dialog, which ->
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION
-            )
-        }
-        builder.setNegativeButton("Deny") { dialog, which ->
-            dialog.dismiss()
-        }
-        val dialog = builder.create()
-        dialog.show()
-    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

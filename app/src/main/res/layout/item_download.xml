@@ -1,0 +1,49 @@
+<!-- item_download.xml -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="downloadModel"
+            type="com.example.terradownloader.model.TDDownloadModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/imageViewThumbnail"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/baseline_image_24" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_toEndOf="@id/imageViewThumbnail"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textViewFileName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{downloadModel.fileName}" />
+
+            <TextView
+                android:id="@+id/textViewFileSize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{downloadModel.fileSize}" />
+
+            <!-- Add more TextViews or other views to display other fields -->
+        </LinearLayout>
+
+    </RelativeLayout>
+</layout>
