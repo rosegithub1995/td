@@ -8,8 +8,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -89,12 +91,14 @@ class MainActivity : AppCompatActivity() {
                 this, Manifest.permission.WRITE_EXTERNAL_STORAGE
             ) != PackageManager.PERMISSION_GRANTED
         ) {
+            Log.d("Permission called", "Permission called request")
             // Permission is not granted
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(
                     this, Manifest.permission.WRITE_EXTERNAL_STORAGE
                 )
             ) {
+                displayStoragePermissionDialog()
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
@@ -115,12 +119,30 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun displayStoragePermissionDialog() {
+        val builder = android.app.AlertDialog.Builder(this)
+        builder.setTitle("Storage Permission Required")
+        builder.setMessage("This app need storage permission to download files")
+        builder.setPositiveButton("Allow") { dialog, which ->
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION
+            )
+        }
+        builder.setNegativeButton("Deny") { dialog, which ->
+            dialog.dismiss()
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray,
     ) {
+        //Log.d("Permission called","Permission called")
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         //super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
@@ -130,17 +152,22 @@ class MainActivity : AppCompatActivity() {
                     // in your app.
                     displayToastLong(baseContext, "Permission Granted")
                 } else {
-                    //Open Settings to enable permission manually
-                    Snackbar.make(
-                        mMainActivityMainBinding.root,
-                        "Enable Storage Permission",
-                        Snackbar.LENGTH_INDEFINITE
-                    ).setAction("Settings") {
-                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                        val uri = Uri.fromParts("package", packageName, null)
-                        intent.data = uri
-                        startActivity(intent)
-                    }.show()
+//                    Log.d(
+//                        "Andrroid version",
+//                        "Android version is less than " + Build.VERSION.SDK_INT
+//                    )
+                    //Open Settings to enable permission manually on android 12 and less
+                    if (Build.VERSION.SDK_INT < 32)
+                        Snackbar.make(
+                            mMainActivityMainBinding.root,
+                            "Enable Storage Permission",
+                            Snackbar.LENGTH_INDEFINITE
+                        ).setAction("Settings") {
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            val uri = Uri.fromParts("package", packageName, null)
+                            intent.data = uri
+                            startActivity(intent)
+                        }.show()
                 }
                 return
             }
