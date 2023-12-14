@@ -1,10 +1,11 @@
 package com.example.terradownloader.utils
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.webkit.MimeTypeMap
 import android.widget.Toast
 import org.json.JSONException
-import org.json.JSONObject
 import java.net.MalformedURLException
 import java.net.URL
 import java.text.SimpleDateFormat
@@ -12,6 +13,15 @@ import java.util.Date
 import java.util.Locale
 
 object Tdutils {
+    const val STRING_COMPLETED = "Completed"
+    const val STRING_FETCHING = "Fetching"
+    const val STRING_FAILED = "Failed"
+    const val STRING_PENDING = "Pending"
+    const val STRING_DOWNLOADING = "Downloading"
+    const val STRING_PAUSED = "Paused"
+    const val STRING_CANCELLED = "Cancelled"
+    const val STRING_RESUMED = "Resumed"
+    const val STRING_REMOVED = "Removed"
     fun geturlID(surl: String): String {
         val startIndex = surl.indexOf("s/") + 2 // Add 2 to skip "s/"
         val endIndex = surl.length
@@ -141,5 +151,24 @@ object Tdutils {
 
         val dateFormat = SimpleDateFormat("yyyy MMMM dd HH:mm:ss", Locale.getDefault())
         return dateFormat.format(normalDate)
+    }
+
+
+    fun internetConnection(mContext: Context): Boolean {
+        // Check if the internet connection is available
+        // ...
+        (mContext.getSystemService(Context.CONNECTIVITY_SERVICE)
+                as ConnectivityManager).apply {
+            return getNetworkCapabilities(activeNetwork)?.run {
+
+                when {
+
+                    hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                    hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                    hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                    else -> false
+                }
+            } ?: false
+        }
     }
 }

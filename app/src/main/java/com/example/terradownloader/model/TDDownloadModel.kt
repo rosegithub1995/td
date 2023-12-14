@@ -1,21 +1,11 @@
 package com.example.terradownloader.model
+import com.example.terradownloader.utils.Tdutils
 import java.util.Date
 
 class TDDownloadModel {
     // For displaying in Recycler View
 
     // For displaying in Recycler View
-    enum class DownloadStatus {
-        PAUSED,
-        DOWNLOADING,
-        COMPLETED,
-        FAILED,
-        STARTED,
-        FETCHING
-    }
-
-    // Id from the download manager
-    var idCurrentlyDownloadingFromManager: Long = -1L
 
     // Terabox file URL
     var teraboxFileUrl: String = ""
@@ -42,8 +32,7 @@ class TDDownloadModel {
     var filePath: String = "downloads"
 
     // Download status
-    var downloadStatus: DownloadStatus =
-        DownloadStatus.FETCHING  // Set to the desired initial status
+    var downloadStatus: String = Tdutils.STRING_FETCHING  // Set to the desired initial status
 
     // Download progress
     var progress: String = "0"
@@ -59,4 +48,37 @@ class TDDownloadModel {
 
     // File upload date (fetch from the URL response like dlink)
     var fileUploadDate: Long = 0
+
+    //Create a constructor
+    constructor(
+        teraboxFileUrl: String,
+        thumbnailUrl1: String,
+        thumbnailUrl2: String,
+        thumbnailUrl3: String,
+        downloadFileUrl: String,
+        fileName: String,
+        fileSize: String,
+        filePath: String,
+        downloadStatus: String,
+        progress: String,
+        isPaused: Boolean,
+        downloadStartingDate: Date,
+        downloadFinishingDate: Date,
+        fileUploadDate: Long
+    ) {
+        this.teraboxFileUrl = teraboxFileUrl
+        this.thumbnailUrl1 = thumbnailUrl1
+        this.thumbnailUrl2 = thumbnailUrl2
+        this.thumbnailUrl3 = thumbnailUrl3
+        this.downloadFileUrl = downloadFileUrl
+        this.fileName = fileName
+        this.fileSize = fileSize
+        this.filePath = filePath
+        this.downloadStatus = downloadStatus
+        this.progress = progress
+        this.isPaused = isPaused
+        this.downloadStartingDate = downloadStartingDate
+        this.downloadFinishingDate = downloadFinishingDate
+        this.fileUploadDate = fileUploadDate
+    }
 }

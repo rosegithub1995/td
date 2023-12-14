@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -14,10 +15,8 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
 
     buildTypes {
         release {
@@ -28,69 +27,73 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
     buildFeatures {
-        dataBinding= true
+        dataBinding = true
         viewBinding = true
     }
 }
-
+//Room
+val room_version = "2.6.1"
+val coreKtxVersion = "1.12.0"
+val appcompatVersion = "1.6.1"
+val materialVersion = "1.10.0"
+val constraintLayoutVersion = "2.1.4"
+val junitVersion = "4.13.2"
+val espressoVersion = "3.5.1"
+val lifecycleVersion = "2.6.2"
+val retrofitVersion = "2.9.0"
+val okHttpVersion = "4.5.0"
+val navigationVersion = "2.7.5"
+val glideVersion = "4.12.0"
+val coroutineVersion = "1.7.1"
 dependencies {
-
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.8.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.7.4")
-    implementation("androidx.navigation:navigation-ui-ktx:2.7.4")
-    testImplementation("junit:junit:4.13.2")
+    // AndroidX
+    implementation("androidx.core:core-ktx:$coreKtxVersion")
+    implementation("androidx.appcompat:appcompat:$appcompatVersion")
+    implementation("com.google.android.material:material:$materialVersion")
+    implementation("androidx.constraintlayout:constraintlayout:$constraintLayoutVersion")
+    implementation("androidx.legacy:legacy-support-v4:1.0.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
+    testImplementation("junit:junit:$junitVersion")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:$espressoVersion")
 
-    //Material3
-    implementation("com.google.android.material:material:1.9.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0")
+    // Architectural Components
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
 
-
-
-    //Retrofit
-    var retrofit_version="2.9.0"
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation("com.squareup.retrofit2:retrofit:${retrofit_version}")
-    implementation("com.squareup.retrofit2:converter-gson:${retrofit_version}")
-    //Glide
-    var glide_version="4.16.0"
-    implementation("com.github.bumptech.glide:glide:${glide_version}")
-
-
-
-    var kotlin_version = "1.6.20"
-    var room_version = "2.5.2"
-    var lifecycle_version = "2.6.2"
-    var coroutines_version = "1.3.9"
+    // Room
     implementation("androidx.room:room-runtime:$room_version")
-
-// optional - Kotlin Extensions and Coroutines support for Room
+    ksp("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
-    kapt("androidx.room:room-compiler:$room_version")
-    // optional - Kotlin Extensions and Coroutines support for Room
-    implementation("androidx.room:room-ktx:$room_version")
-    //Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutines_version}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutines_version}")
 
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutineVersion")
 
+    // Coroutine Lifecycle Scopes
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
 
-    //VieModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
+    implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
+    implementation("com.squareup.okhttp3:logging-interceptor:$okHttpVersion")
 
+    // Navigation Components
+    implementation("androidx.navigation:navigation-fragment-ktx:$navigationVersion")
+    implementation("androidx.navigation:navigation-ui-ktx:$navigationVersion")
 
-
+    // Glide
+    implementation("com.github.bumptech.glide:glide:$glideVersion")
+    ksp("com.github.bumptech.glide:compiler:$glideVersion")
 }

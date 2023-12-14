@@ -4,35 +4,39 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.terradownloader.model.TDDownloadModel
+import com.example.terradownloader.utils.Tdutils
 
 @Dao
 interface DownloadDAO {
-    // Define methods for CurrentlyDownloadingTable
-    @Insert
-    suspend fun insertCurrentlyDownloadingItemToDatabase(currentlyDownloadingTable: CurrentlyDownloadingTable)
+    companion object {
+        const val COMPLETED_STATUS = Tdutils.STRING_COMPLETED// replace with actual completed status
+    }
+    // Define methods for DownloadingTable
+//    @Insert
+//    suspend fun insertCurrentlyDownloadingItemToDatabase(currentlyDownloadingTable: DownloadingTable)
+
+
+    // Define methods for DownloadingTable
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCurrentlyDownloadingItemToDatabase(mCurrentlyDownloadingTable: DownloadingTable)
+
 
     @Delete
-    suspend fun deleteCurrentlyDownloadingItemFromDatabase(mTDDownloadModel: TDDownloadModel)
+    suspend fun deleteCurrentlyDownloadingItemFromDatabase(mCurrentlyDownloadingTable: DownloadingTable)
 
-    @Update
-    suspend fun updateCurrentlyDownloadingItemInDatabase(mTDDownloadModel: TDDownloadModel)
+    @Query("DELETE FROM DownloadingTable WHERE teraboxFileUrl = :fileUrl")
+    suspend fun deleteByFileUrl(fileUrl: String)
 
-    @Query("SELECT * FROM CurrentlyDownloadingTable WHERE downloadStatus != 'Completed'")
-    fun getCurrentlyDownloadingItemFromDatabase(): LiveData<List<TDDownloadModel>>
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateCurrentlyDownloadingItemInDatabase(mCurrentlyDownloadingTable: DownloadingTable)
 
-    // Define methods for DownloadedTable
-    @Insert
-    suspend fun insertDownloadedItemToDatabase(mTDDownloadModel: TDDownloadModel)
+    @Query("SELECT * FROM DownloadingTable WHERE downloadStatus != :status")
+    fun getCurrentlyDownloadingItemFromDatabase(status: String): LiveData<List<TDDownloadModel>>
 
-    @Delete
-    suspend fun deleteDownloadedItemFromDatabase(mTDDownloadModel: TDDownloadModel)
-
-    @Update
-    suspend fun updateDownloadedItemInDatabase(mTDDownloadModel: TDDownloadModel)
-
-    @Query("SELECT * FROM DownloadedTable")
-    fun getDownloadedItemsFromDatabase(): LiveData<List<TDDownloadModel>>
+    @Query("SELECT * FROM DownloadingTable WHERE downloadStatus = :status")
+    fun getDownloadedItemsFromDatabase(status:String): LiveData<List<TDDownloadModel>>
 }

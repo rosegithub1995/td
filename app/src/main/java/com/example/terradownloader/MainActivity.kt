@@ -1,6 +1,7 @@
 package com.example.terradownloader
 
 
+import QueuedViewModel
 import android.Manifest
 import android.content.ClipDescription.MIMETYPE_TEXT_PLAIN
 import android.content.ClipboardManager
@@ -16,11 +17,16 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.example.terradownloader.Adapter.TabPagerAdapter
+import com.example.terradownloader.Database.DBTeraboxDatabase
+import com.example.terradownloader.Repository.TeraboxRepository
 import com.example.terradownloader.databinding.ActivityMainBinding
 import com.example.terradownloader.interfaces.TDInterface
+import com.example.terradownloader.model.TDDownloadModel
 import com.example.terradownloader.model.TDPojo
+import com.example.terradownloader.utils.Tdutils
 import com.example.terradownloader.utils.Tdutils.checkUrlPatterns
 import com.example.terradownloader.utils.Tdutils.displayToastLong
 import com.example.terradownloader.utils.Tdutils.displayToastless
@@ -33,6 +39,7 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.Date
 
 
 class MainActivity : AppCompatActivity() {
@@ -43,7 +50,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var textFieldEnterUrl: TextInputEditText
     private lateinit var downloadButton: Button
     private lateinit var pasteButton: Button
-    private lateinit var urlId: String
+    private var urlId: String = "23456"
     private var pasteUrl: String = ""
     private lateinit var dlink: String
 
@@ -52,11 +59,13 @@ class MainActivity : AppCompatActivity() {
 
 
     private lateinit var mMainActivityMainBinding: ActivityMainBinding
+    private lateinit var viewModel: QueuedViewModel
+    private var filenameCounter = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        //setContentView(R.layout.activity_main)
         mMainActivityMainBinding = ActivityMainBinding.inflate(layoutInflater);
         setContentView(mMainActivityMainBinding.root);
         val viewPager: ViewPager2 = mMainActivityMainBinding.viewPager
@@ -81,8 +90,13 @@ class MainActivity : AppCompatActivity() {
         downloadButton = mMainActivityMainBinding.downloadButton
         pasteButton = mMainActivityMainBinding.pasteButton;
 
+
         //Function that request permission for storage
         requestStoragePermission()
+        val repository = TeraboxRepository(DBTeraboxDatabase.getDatabaseInstance(this))
+        val factory = Factory(application, repository)
+        viewModel = ViewModelProvider(this, factory).get(QueuedViewModel::class.java)
+
 
     }
 
@@ -209,16 +223,63 @@ class MainActivity : AppCompatActivity() {
         }
         // Additional code to be executed when the activity starts
         downloadButton.setOnClickListener {
-            if (pasteUrl.isEmpty()) displayToastless(baseContext, "Url is required");
-            else {
-                handleDownloadClick(pasteUrl)
-                //displayToastLong(baseContext, "Not Valid Url");
-            }
+            addToList()
+
         }
 
     }
 
+    private fun addToList() {
+
+        //Make a list to update the content in the Queued Fragment
+
+        //downloadTDDownloadModel.add(TDDownloadModel())
+
+        // Increment the filenameCounter
+        filenameCounter++
+
+        // Create a new TDDownloadModel with the incremented filename
+        val newDownloadModel = TDDownloadModel(
+            fileName = "File$filenameCounter",
+
+            // Other properties...
+            //other properties
+
+            teraboxFileUrl = "https://www.terabox.com/file/$urlId",
+            thumbnailUrl1 = "https://www.terabox.com/file/$urlId",
+
+            thumbnailUrl2 = "https://www.terabox.com/file/$urlId",
+            thumbnailUrl3 = "https://www.terabox.com/file/$urlId",
+
+            downloadFileUrl = "3214567bdnfgm",
+
+            fileSize = "0",
+            filePath = "downloads",
+            downloadStatus = Tdutils.STRING_FETCHING,
+            progress = "0",
+
+            isPaused = false,
+            downloadStartingDate = Date(),
+            downloadFinishingDate = Date(),
+            fileUploadDate = 0
+
+
+        )
+        Log.d("File Name ", filenameCounter.toString())
+
+        // Call the insertDownload method in the ViewModel
+        viewModel.insertDownload(newDownloadModel)
+        //Log.d("File Name ", "File")
+        //Iterate the viemodal to the list
+        val i = viewModel.getDownloadItems()
+        //Iterate the list to log
+        for (item in i.value!!) {
+            Log.d("File Name ", item.fileName.toString())
+        }
+    }
+
     private fun handleDownloadClick(text: String) {
+        //Add dummy items to the list upon each click,
         if (checkUrlPatterns(text)) {
             //Log.d("Valid Url regex", "Regex match for terabox");
             //displayToastless(baseContext,"Valid tera box Url");
@@ -255,32 +316,5 @@ class MainActivity : AppCompatActivity() {
         } else {
             displayToastless(baseContext, "Invalid Terabox URL");
         }
-
-
-        //val link = textFieldEnterUrl.text.toString()
     }
-
-
-//    private fun updateDownloadStatus(downloadModel: TDDownloadModel) {
-//        val index =
-//            downloadTDDownloadModel.indexOfFirst { it.mDownloadId == downloadModel.mDownloadId }
-//        if (index != -1) {
-//            downloadTDDownloadModel[index] = downloadModel
-//            runOnUiThread {
-//                mTDAdapter.notifyItemChanged(index)
-//            }
-//        }
-//    }
-
-
-    override fun onDestroy() {
-        //Add the difference of the data back to the DB to both the Tables
-        super.onDestroy()
-    }
-
-
-//    val epochTimestamp = 1632591600L // Replace with your desired epoch timestamp
-//    val formattedDate = convertEpochToDateTime(epochTimestamp)
-//    println(formattedDate)
-
 }

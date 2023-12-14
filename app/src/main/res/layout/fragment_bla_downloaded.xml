@@ -5,11 +5,11 @@
     android:layout_height="match_parent"
     tools:context=".DownloadedFragment">
     <TextView
+        android:id="@+id/textview_no_items"
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Hello 2" />
-
+        android:text="There are no Items Here" />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview_fragment_downloaded"
         android:layout_width="match_parent"

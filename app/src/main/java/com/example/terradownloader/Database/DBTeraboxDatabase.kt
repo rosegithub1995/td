@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [CurrentlyDownloadingTable::class, DownloadedTable::class], version = 1)
+@Database(entities = [DownloadingTable::class], version = 1)
 @TypeConverters(Convertors::class)
 abstract class DBTeraboxDatabase : RoomDatabase() {
     //Linking the Abstract DAO
