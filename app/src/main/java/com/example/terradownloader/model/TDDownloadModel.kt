@@ -10,6 +10,9 @@ class TDDownloadModel {
     // Terabox file URL
     var teraboxFileUrl: String = ""
 
+    //var icon
+    var icon: String = ""
+
     // The thumbnail URL for the post
     var thumbnailUrl1: String = ""
 
@@ -48,37 +51,7 @@ class TDDownloadModel {
 
     // File upload date (fetch from the URL response like dlink)
     var fileUploadDate: Long = 0
+    var category:String=""
 
     //Create a constructor
-    constructor(
-        teraboxFileUrl: String,
-        thumbnailUrl1: String,
-        thumbnailUrl2: String,
-        thumbnailUrl3: String,
-        downloadFileUrl: String,
-        fileName: String,
-        fileSize: String,
-        filePath: String,
-        downloadStatus: String,
-        progress: String,
-        isPaused: Boolean,
-        downloadStartingDate: Date,
-        downloadFinishingDate: Date,
-        fileUploadDate: Long
-    ) {
-        this.teraboxFileUrl = teraboxFileUrl
-        this.thumbnailUrl1 = thumbnailUrl1
-        this.thumbnailUrl2 = thumbnailUrl2
-        this.thumbnailUrl3 = thumbnailUrl3
-        this.downloadFileUrl = downloadFileUrl
-        this.fileName = fileName
-        this.fileSize = fileSize
-        this.filePath = filePath
-        this.downloadStatus = downloadStatus
-        this.progress = progress
-        this.isPaused = isPaused
-        this.downloadStartingDate = downloadStartingDate
-        this.downloadFinishingDate = downloadFinishingDate
-        this.fileUploadDate = fileUploadDate
-    }
 }

@@ -6,7 +6,6 @@ data class TDPojo(
     val isdir: String,
     val local_ctime: String,
     val local_mtime: String,
-    val md5: String,
     val path: String,
     val play_forbid: String,
     val server_ctime: String,

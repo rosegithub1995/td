@@ -17,13 +17,11 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.example.terradownloader.Adapter.TabPagerAdapter
-import com.example.terradownloader.Database.DBTeraboxDatabase
-import com.example.terradownloader.Repository.TeraboxRepository
 import com.example.terradownloader.databinding.ActivityMainBinding
-import com.example.terradownloader.interfaces.TDInterface
+import com.example.terradownloader.interfaces.RetrofitInstance
+import com.example.terradownloader.interfaces.RetrofitService
 import com.example.terradownloader.model.TDDownloadModel
 import com.example.terradownloader.model.TDPojo
 import com.example.terradownloader.utils.Tdutils
@@ -93,9 +91,6 @@ class MainActivity : AppCompatActivity() {
 
         //Function that request permission for storage
         requestStoragePermission()
-        val repository = TeraboxRepository(DBTeraboxDatabase.getDatabaseInstance(this))
-        val factory = Factory(application, repository)
-        viewModel = ViewModelProvider(this, factory).get(QueuedViewModel::class.java)
 
 
     }
@@ -288,7 +283,9 @@ class MainActivity : AppCompatActivity() {
             //d("S param from terabox", urlId);
 
             GlobalScope.launch {
-                val dlinkFetchResponse = TDInterface.getTDRetrofitInstance().getTdlink(urlId);
+                val dlinkFetchResponse =
+                    RetrofitInstance.getTDRetrofitInstance().create(RetrofitService::class.java)
+                        .getTdlink(urlId);
                 //d("url calld", dlink.toString());
                 dlinkFetchResponse.enqueue(object : Callback<TDPojo> {
                     override fun onResponse(call: Call<TDPojo>, response: Response<TDPojo>) {
@@ -317,4 +314,5 @@ class MainActivity : AppCompatActivity() {
             displayToastless(baseContext, "Invalid Terabox URL");
         }
     }
+
 }

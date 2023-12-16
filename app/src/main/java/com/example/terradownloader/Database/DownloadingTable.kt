@@ -7,12 +7,12 @@ import java.util.Date
 @Entity(tableName = "DownloadingTable")
 data class DownloadingTable(
     @PrimaryKey(autoGenerate = true) val id: Long? = null, // Id for the CurrentlyDownloadingEntities Table set as PK
-    val idCurrentlyDownloading: Long, // Id from the download manager
+    val urlId: String, // Id from the download manager
     val teraboxFileUrl: String = "",
-    val thumbnailUrl1: String, // The thumbnail URL for the post
-    val thumbnailUrl2: String, // The thumbnail URL for the post
-    val thumbnailUrl3: String, // The thumbnail URL for the post
-    var downloadFileUrl: String, // The download link of the file it is dlink from the response
+    val thumbnailUrl1: String="", // The thumbnail URL for the post
+    val thumbnailUrl2: String="", // The thumbnail URL for the post
+    val thumbnailUrl3: String="", // The thumbnail URL for the post
+    var downloadFileUrl: String="", // The download link of the file it is dlink from the response
     val fileName: String = "",
     val fileSize: String = "",
     val filePath: String = "",
