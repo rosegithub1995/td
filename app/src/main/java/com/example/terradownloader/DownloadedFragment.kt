@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 
 
 /**
@@ -15,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider
  */
 class DownloadedFragment : Fragment() {
 
-    private lateinit var viewModel: DownloadedViewModel
+
 
 
     override fun onCreateView(
@@ -28,7 +27,6 @@ class DownloadedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this).get(DownloadedViewModel::class.java)
 
     }
 }

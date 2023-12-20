@@ -2,6 +2,7 @@ package com.example.terradownloader
 
 
 import QueuedViewModel
+import QueuedViewModelFactory
 import android.Manifest
 import android.content.ClipDescription.MIMETYPE_TEXT_PLAIN
 import android.content.ClipboardManager
@@ -17,14 +18,14 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.example.terradownloader.Adapter.TabPagerAdapter
+import com.example.terradownloader.Database.DBTeraboxDatabase
 import com.example.terradownloader.databinding.ActivityMainBinding
 import com.example.terradownloader.interfaces.RetrofitInstance
 import com.example.terradownloader.interfaces.RetrofitService
-import com.example.terradownloader.model.TDDownloadModel
 import com.example.terradownloader.model.TDPojo
-import com.example.terradownloader.utils.Tdutils
 import com.example.terradownloader.utils.Tdutils.checkUrlPatterns
 import com.example.terradownloader.utils.Tdutils.displayToastLong
 import com.example.terradownloader.utils.Tdutils.displayToastless
@@ -37,7 +38,6 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.Date
 
 
 class MainActivity : AppCompatActivity() {
@@ -87,6 +87,15 @@ class MainActivity : AppCompatActivity() {
         textFieldEnterUrl = mMainActivityMainBinding.textFieldEnterUrl;
         downloadButton = mMainActivityMainBinding.downloadButton
         pasteButton = mMainActivityMainBinding.pasteButton;
+        // Initialize your ViewModel using the activity's ViewModelStore
+        viewModel = ViewModelProvider(
+            this,
+            QueuedViewModelFactory(
+                applicationContext,
+                DBTeraboxDatabase.getDatabaseInstance(applicationContext)
+            )
+        )
+            .get(QueuedViewModel::class.java)
 
 
         //Function that request permission for storage
@@ -232,44 +241,9 @@ class MainActivity : AppCompatActivity() {
 
         // Increment the filenameCounter
         filenameCounter++
-
-        // Create a new TDDownloadModel with the incremented filename
-        val newDownloadModel = TDDownloadModel(
-            fileName = "File$filenameCounter",
-
-            // Other properties...
-            //other properties
-
-            teraboxFileUrl = "https://www.terabox.com/file/$urlId",
-            thumbnailUrl1 = "https://www.terabox.com/file/$urlId",
-
-            thumbnailUrl2 = "https://www.terabox.com/file/$urlId",
-            thumbnailUrl3 = "https://www.terabox.com/file/$urlId",
-
-            downloadFileUrl = "3214567bdnfgm",
-
-            fileSize = "0",
-            filePath = "downloads",
-            downloadStatus = Tdutils.STRING_FETCHING,
-            progress = "0",
-
-            isPaused = false,
-            downloadStartingDate = Date(),
-            downloadFinishingDate = Date(),
-            fileUploadDate = 0
-
-
-        )
         Log.d("File Name ", filenameCounter.toString())
-
-        // Call the insertDownload method in the ViewModel
-        viewModel.insertDownload(newDownloadModel)
-        //Log.d("File Name ", "File")
-        //Iterate the viemodal to the list
-        val i = viewModel.getDownloadItems()
-        //Iterate the list to log
-        for (item in i.value!!) {
-            Log.d("File Name ", item.fileName.toString())
+        GlobalScope.launch {
+            viewModel.makeApiCall("urlid" + filenameCounter, "teraboxFileUrl" + filenameCounter)
         }
     }
 

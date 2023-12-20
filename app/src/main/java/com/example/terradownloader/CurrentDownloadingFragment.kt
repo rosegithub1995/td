@@ -7,14 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.terradownloader.Adapter.QueuedAdapter
 
 
 class CurrentDownloadingFragment : Fragment() {
-    private lateinit var viewModel: QueuedViewModel
+    private val viewModel: QueuedViewModel by activityViewModels()
     private lateinit var mQueuedAdapter: QueuedAdapter
 
     override fun onCreateView(
@@ -26,7 +26,7 @@ class CurrentDownloadingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this).get(QueuedViewModel::class.java)
+        // Initialize your ViewModel using the activity's ViewModelStore
 
         val recyclerView: RecyclerView =
             view.findViewById(R.id.recyclerview_fragment_currently_downloading)
@@ -37,19 +37,8 @@ class CurrentDownloadingFragment : Fragment() {
         recyclerView.adapter = mQueuedAdapter
 
 
-        viewModel.downloadList.observe(viewLifecycleOwner) { downloadList ->
+        viewModel.getQueuedListData().observe(viewLifecycleOwner) { downloadList ->
             Log.d("DownloadList lifecule", "Size: ${downloadList.size}")
-
-        }
-        val mList = viewModel.getDownloadItems()
-        if (mList.value == null) {
-            Log.d("DownloadList frag ", "null")
-        } else {
-            Log.d("DownloadList frag ", "not null")
-            for (i in mList.value!!) {
-
-                Log.d("DownloadList frag ", i.fileName)
-            }
         }
 
 

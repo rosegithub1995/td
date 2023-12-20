@@ -1,143 +1,69 @@
+
 import android.content.Context
-import android.util.Log
-import androidx.lifecycle.LiveData
+import android.util.Log.d
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.terradownloader.Database.DBTeraboxDatabase
-import com.example.terradownloader.Database.DownloadingTable
 import com.example.terradownloader.Repository.TeraboxRepository
 import com.example.terradownloader.model.TDDownloadModel
-import kotlinx.coroutines.launch
-import java.util.Date
 
 class QueuedViewModel(val mContext: Context, val mDatabase: DBTeraboxDatabase) : ViewModel() {
     private lateinit var mRepository: TeraboxRepository
 
-    lateinit var liveDataList: MutableLiveData<List<DownloadingTable>>
+    lateinit var liveQueueDataList: MutableLiveData<List<TDDownloadModel>>
+    lateinit var liveDataDownloadedList: MutableLiveData<List<TDDownloadModel>>
 
     init {
-        liveDataList = MutableLiveData()
+        liveQueueDataList = MutableLiveData()
+        liveDataDownloadedList = MutableLiveData()
         mRepository = TeraboxRepository(mDatabase)
     }
 
-    fun getLiveDataObserver(): MutableLiveData<List<DownloadingTable>> {
-        return liveDataList
+    fun getQueuedListData(): MutableLiveData<List<TDDownloadModel>> {
+        return liveQueueDataList
+    }
+
+    fun getDownloadListData(): MutableLiveData<List<TDDownloadModel>> {
+        return liveDataDownloadedList
     }
 
     //function to make api call
 
     suspend fun makeApiCall(urlId: String, teraboxFileUrl: String) {
-        val tdPojo = mRepository.fetchLinkDetails(urlId, mContext)
+        //val tdPojo = mRepository.fetchLinkDetails(urlId, mContext)
+        val tdPojo = null
         // create the object and add the details to the list
         var mItem: TDDownloadModel? = null
         if (tdPojo != null) {
             mItem = TDDownloadModel()
-            mItem.teraboxFileUrl = teraboxFileUrl
-            mItem.icon = tdPojo.thumbs.icon
-            mItem.thumbnailUrl1 = tdPojo.thumbs.url1
-            mItem.thumbnailUrl2 = tdPojo.thumbs.url2
-            mItem.thumbnailUrl3 = tdPojo.thumbs.url3
-            mItem.downloadFileUrl = tdPojo.dlink
-            mItem.fileName = tdPojo.server_filename
-            mItem.fileSize = tdPojo.size
-            mItem.filePath = "downloads"
-            mItem.downloadStatus = "Fetching"
-            mItem.progress = "0"
-            mItem.isPaused = false
-            mItem.downloadStartingDate = Date()
-            mItem.downloadFinishingDate = Date()
-            mItem.fileUploadDate = tdPojo.server_mtime.toLong()
-            mItem.category = tdPojo.category
+//            mItem.teraboxFileUrl = teraboxFileUrl
+//            mItem.icon = tdPojo.thumbs.icon
+//            mItem.thumbnailUrl1 = tdPojo.thumbs.url1
+//            mItem.thumbnailUrl2 = tdPojo.thumbs.url2
+//            mItem.thumbnailUrl3 = tdPojo.thumbs.url3
+//            mItem.downloadFileUrl = tdPojo.dlink
+//            mItem.fileName = tdPojo.server_filename
+//            mItem.fileSize = tdPojo.size
+//            mItem.filePath = "/downloads"
+//            mItem.downloadStatus = Tdutils.STRING_FETCHING
+//            mItem.progress = "0"
+//            mItem.isPaused = true
+//            mItem.downloadStartingDate = Date()
+//            mItem.downloadFinishingDate = Date()
+//            mItem.fileUploadDate = tdPojo.server_mtime.toLong()
+//            mItem.category = tdPojo.category
+            //add mItem to the list
+        } else {
+            mItem = TDDownloadModel()
+            //
         }
+        updateLiveDataWithItem(mItem)
     }
 
-    // LiveData to observe changes in the download list
-    private val _downloadList = MutableLiveData<List<TDDownloadModel>>()
-    val downloadList: LiveData<List<TDDownloadModel>> get() = _downloadList
-
-
-    //
-    private val _downloadListString = MutableLiveData<List<String>>()
-    val downloadListString: MutableLiveData<List<String>> get() = _downloadListString
-
-
-    fun getDownloadItems(): LiveData<List<TDDownloadModel>> {
-        return _downloadList
+    private fun updateLiveDataWithItem(item: TDDownloadModel) {
+        val currentList = liveQueueDataList.value?.toMutableList() ?: mutableListOf()
+        currentList.add(item)
+        liveQueueDataList.postValue(currentList)
+        d("DownloadList", "Size: ${liveQueueDataList.value?.size}")
     }
-
-    fun getDownloadItemsString(): LiveData<List<String>> {
-        return _downloadListString
-    }
-
-    fun insertDownload(mTDDownloadModel: TDDownloadModel) {
-        val currentList = _downloadList.value?.toMutableList() ?: mutableListOf()
-
-        // Add the new download to the list
-        currentList.add(mTDDownloadModel)
-
-        // Update the LiveData
-        _downloadList.value = currentList
-        Log.d("ViewModelUpdate", "List updated: Size = ${currentList.size}")
-    }
-
-    fun insertTODownloadString(link: String) {
-        val currentList = _downloadListString.value?.toMutableList() ?: mutableListOf()
-
-        // Add the new download to the list
-        currentList.add(link)
-
-        // Update the LiveData
-        _downloadListString.value = currentList
-        Log.d("ViewModelUpdate", "List updated: Size = ${currentList.size}")
-    }
-
-//    fun addToDatabase(mTDDownloadModel: TDDownloadModel) = viewModelScope.launch {
-//        //make mTdDownloadModel to DownloadingTable
-//        val mDownloadingTable = DownloadingTable(
-//            1, 1, "teraboxurl", "teraboxurl", "teraboxurl", "teraboxurl", "teraboxurl",
-//            mTDDownloadModel.fileName, mTDDownloadModel.fileSize,
-//            "teraboxurl", "teraboxurl",
-//            "0", false, Date(), Date(), 1
-//        )
-//        repository.addLinkToDatabase(mDownloadingTable)
-//        // Add the new download to the database
-//        // ...
-//    }
-
-    fun getDownloadListFromDatabase() = viewModelScope.launch {
-        // Get the download list from the database
-        // ...
-    }
-
-
-//    suspend fun getDownloadLinkInformation(link: String) {
-//        try {
-//            if (Tdutils.internetConnection(this.app)) {
-//                val response = repository.fetchLinkDetails(link)
-//                //add the reponse to the TDdownloadModel and add to the database
-//            } else {
-//                // No internet connection
-//                // ...
-//            }
-//        } catch (t: Throwable) {
-//            // Error fetching the link information
-//            // ...
-//
-//            when (t) {
-//
-//                is IOException -> {
-//                    // No internet connection
-//                    // ...
-//                    Toast.makeText(this.app, "IO Error Something gone bad!!!", Toast.LENGTH_SHORT).show()
-//                }
-//
-//                else ->{
-//                    Toast.makeText(this.app, "Something gone bad!!!", Toast.LENGTH_SHORT).show()
-//                }
-//            }
-//        }
-//    }
-
-    // Other methods...
 }

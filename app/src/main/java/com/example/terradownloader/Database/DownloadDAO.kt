@@ -7,7 +7,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.terradownloader.model.TDDownloadModel
 import com.example.terradownloader.utils.Tdutils
 
 @Dao
@@ -35,8 +34,8 @@ interface DownloadDAO {
     suspend fun updateCurrentlyDownloadingItemInDatabase(mCurrentlyDownloadingTable: DownloadingTable)
 
     @Query("SELECT * FROM DownloadingTable WHERE downloadStatus != :status")
-    fun getCurrentlyDownloadingItemFromDatabase(status: String): LiveData<List<TDDownloadModel>>
+    fun getCurrentlyDownloadingItemFromDatabase(status: String): LiveData<List<DownloadingTable>>
 
     @Query("SELECT * FROM DownloadingTable WHERE downloadStatus = :status")
-    fun getDownloadedItemsFromDatabase(status:String): LiveData<List<TDDownloadModel>>
+    fun getDownloadedItemsFromDatabase(status: String): LiveData<List<DownloadingTable>>
 }

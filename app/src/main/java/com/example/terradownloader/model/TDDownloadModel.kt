@@ -8,7 +8,7 @@ class TDDownloadModel {
     // For displaying in Recycler View
 
     // Terabox file URL
-    var teraboxFileUrl: String = ""
+    var teraboxFileUrl: String = Tdutils.STRING_FETCHING
 
     //var icon
     var icon: String = ""
@@ -41,7 +41,7 @@ class TDDownloadModel {
     var progress: String = "0"
 
     // Is download paused
-    var isPaused: Boolean = false
+    var isPaused: Boolean = true
 
     // Download starting date
     var downloadStartingDate: Date = Date()
