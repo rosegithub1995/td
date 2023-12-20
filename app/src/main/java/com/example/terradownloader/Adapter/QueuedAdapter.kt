@@ -4,46 +4,46 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.AsyncListDiffer
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.terradownloader.Database.DownloadingTable
 import com.example.terradownloader.R
+import com.example.terradownloader.model.TDDownloadModel
 
 class QueuedAdapter :
     RecyclerView.Adapter<QueuedAdapter.QueuedViewHolder>() {
+        private var items: MutableList<TDDownloadModel> = mutableListOf()
 
-    private var differCallBack = object : DiffUtil.ItemCallback<DownloadingTable>() {
-        override fun areItemsTheSame(
-            oldItem: DownloadingTable,
-            newItem: DownloadingTable
-        ): Boolean {
-            return oldItem.teraboxFileUrl == newItem.teraboxFileUrl
-        }
+//    private var differCallBack = object : DiffUtil.ItemCallback<DownloadingTable>() {
+//        override fun areItemsTheSame(
+//            oldItem: DownloadingTable,
+//            newItem: DownloadingTable
+//        ): Boolean {
+//            return oldItem.teraboxFileUrl == newItem.teraboxFileUrl
+//        }
+//
+//        override fun areContentsTheSame(
+//            oldItem: DownloadingTable,
+//            newItem: DownloadingTable
+//        ): Boolean {
+//
+//            return oldItem == newItem
+//        }
+//
+//    }
+//    private var stringDifferCallback = object : DiffUtil.ItemCallback<String>() {
+//        override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+//            return oldItem == newItem
+//        }
+//
+//        override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+//
+//            return oldItem == newItem
+//        }
+//
+//    }
 
-        override fun areContentsTheSame(
-            oldItem: DownloadingTable,
-            newItem: DownloadingTable
-        ): Boolean {
-
-            return oldItem == newItem
-        }
-
-    }
-    private var stringDifferCallback = object : DiffUtil.ItemCallback<String>() {
-        override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
-            return oldItem == newItem
-        }
-
-        override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
-
-            return oldItem == newItem
-        }
-
-    }
-
-    val differ = androidx.recyclerview.widget.AsyncListDiffer(this, differCallBack)
-    val stringDiffer = AsyncListDiffer(this, stringDifferCallback)
+//    val differ = androidx.recyclerview.widget.AsyncListDiffer(this, differCallBack)
+//    val stringDiffer = AsyncListDiffer(this, stringDifferCallback)
 
     inner class QueuedViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val name: TextView = itemView.findViewById(R.id.textViewFileName)
@@ -57,9 +57,9 @@ class QueuedAdapter :
     }
 
     override fun onBindViewHolder(holder: QueuedViewHolder, position: Int) {
-        val currentItem = differ.currentList[position]
+        val currentItem = items[position]
         holder.name.text = currentItem.fileName
-        holder.status.text = currentItem.fileSize
+        holder.status.text = currentItem.fileName
 //        holder.itemView.setOnClickListener {
 //            onItemClickListener?.let { it(currentItem) }
 //        }
@@ -81,8 +81,14 @@ class QueuedAdapter :
     override fun getItemCount(): Int {
         //
         //differ.currentList.size
-        return stringDiffer.currentList.size
+        return items.size
     }
+    fun updateAdapter(newList: List<TDDownloadModel>) {
+        // Update the internal list of the adapter
+        items = newList.toMutableList()
+        notifyDataSetChanged()
+    }
+
 
     //ClickListener
 

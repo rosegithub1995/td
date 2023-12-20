@@ -38,6 +38,7 @@ class CurrentDownloadingFragment : Fragment() {
 
 
         viewModel.getQueuedListData().observe(viewLifecycleOwner) { downloadList ->
+            mQueuedAdapter.updateAdapter(downloadList)
             Log.d("DownloadList lifecule", "Size: ${downloadList.size}")
         }
 

@@ -55,6 +55,7 @@ class QueuedViewModel(val mContext: Context, val mDatabase: DBTeraboxDatabase) :
             //add mItem to the list
         } else {
             mItem = TDDownloadModel()
+            mItem.fileName = teraboxFileUrl
             //
         }
         updateLiveDataWithItem(mItem)
