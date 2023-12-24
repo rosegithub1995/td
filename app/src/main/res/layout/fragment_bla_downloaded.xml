@@ -11,6 +11,8 @@
         android:layout_height="match_parent"
         android:text="There are no Items Here" />
     <androidx.recyclerview.widget.RecyclerView
+
+        android:layout_marginTop="?attr/actionBarSize"
         android:id="@+id/recyclerview_fragment_downloaded"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
