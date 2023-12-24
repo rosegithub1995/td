@@ -46,8 +46,8 @@ class QueuedAdapter :
 //    val stringDiffer = AsyncListDiffer(this, stringDifferCallback)
 
     inner class QueuedViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val name: TextView = itemView.findViewById(R.id.textViewFileName)
-        val status: TextView = itemView.findViewById(R.id.textViewFileSize)
+        val name: TextView = itemView.findViewById(R.id.file_title)
+        val status: TextView = itemView.findViewById(R.id.file_size)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QueuedViewHolder {

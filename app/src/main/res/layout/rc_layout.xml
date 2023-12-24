@@ -2,12 +2,14 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:elevation="@dimen/cardview_elevation"
+    app:cardCornerRadius="@dimen/cardview_radius">
 
     <LinearLayout
         android:id="@+id/main_rel"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:orientation="vertical"
         android:padding="@dimen/padding_4dp">
 
@@ -19,8 +21,8 @@
 
             <ImageView
                 android:id="@+id/image_view_rc_thumbnail"
-                android:layout_width="40dp"
-                android:layout_height="50dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_weight="1"
                 android:src="@android:drawable/stat_sys_download_done"
                 app:tint="@color/design_default_color_primary_variant" />
@@ -36,15 +38,6 @@
                 android:padding="@dimen/padding_4dp"
                 android:text="File Name" />
 
-            <Button
-                android:id="@+id/button_rc_pause_resume"
-                style="@style/Widget.Material3.Button.ElevatedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="@dimen/padding_4dp"
-                android:text="Pause/Resume"
-                android:textSize="12sp" />
 
         </LinearLayout>
 

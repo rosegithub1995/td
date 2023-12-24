@@ -38,6 +38,9 @@ class CurrentDownloadingFragment : Fragment() {
 
 
         viewModel.getQueuedListData().observe(viewLifecycleOwner) { downloadList ->
+            if (downloadList.size > 0) {
+                view.findViewById<View>(R.id.textview_no_items).visibility = View.GONE
+            }
             mQueuedAdapter.updateAdapter(downloadList)
             Log.d("DownloadList lifecule", "Size: ${downloadList.size}")
         }
