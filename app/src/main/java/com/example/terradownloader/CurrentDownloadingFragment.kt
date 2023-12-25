@@ -41,13 +41,18 @@ class CurrentDownloadingFragment : Fragment() {
             if (downloadList.size > 0) {
                 view.findViewById<View>(R.id.textview_no_items).visibility = View.GONE
             }
+            //if the item value oif the list is changed then update the adapter
             mQueuedAdapter.updateAdapter(downloadList)
             Log.d("DownloadList lifecule", "Size: ${downloadList.size}")
         }
+
+        //check if the item in the list is changed
 
 
         //Add the data to recyclerview
 
 
     }
+
+
 }

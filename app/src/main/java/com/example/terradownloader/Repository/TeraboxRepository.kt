@@ -6,6 +6,7 @@ import com.example.terradownloader.Database.DBTeraboxDatabase
 import com.example.terradownloader.Database.DownloadingTable
 import com.example.terradownloader.interfaces.RetrofitInstance
 import com.example.terradownloader.interfaces.RetrofitService
+import com.example.terradownloader.model.TDDownloadModel
 import com.example.terradownloader.model.TDPojo
 import com.example.terradownloader.utils.Tdutils
 import kotlinx.coroutines.GlobalScope
@@ -44,6 +45,12 @@ class TeraboxRepository(
     }
 
 
+    //start the engine
+
+    suspend fun startDownloadEngine(mTDDownloadModel: TDDownloadModel) {
+
+
+    }
     //Add the link to the database
 
     suspend fun addLinkToDatabase(mDownloadingTable: DownloadingTable) =

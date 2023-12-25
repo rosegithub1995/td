@@ -1,17 +1,22 @@
 package com.example.terradownloader.Adapter
 
+import android.util.Log.d
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.example.terradownloader.Database.DownloadingTable
 import com.example.terradownloader.R
 import com.example.terradownloader.model.TDDownloadModel
+import com.example.terradownloader.utils.Tdutils
 
 class QueuedAdapter :
     RecyclerView.Adapter<QueuedAdapter.QueuedViewHolder>() {
-        private var items: MutableList<TDDownloadModel> = mutableListOf()
+    private var items: MutableList<TDDownloadModel> = mutableListOf()
+
 
 //    private var differCallBack = object : DiffUtil.ItemCallback<DownloadingTable>() {
 //        override fun areItemsTheSame(
@@ -48,6 +53,9 @@ class QueuedAdapter :
     inner class QueuedViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val name: TextView = itemView.findViewById(R.id.file_title)
         val status: TextView = itemView.findViewById(R.id.file_size)
+        val progressBarView: ProgressBar = itemView.findViewById(R.id.file_progress)
+        val retryCancel: ImageView = itemView.findViewById(R.id.file_cancel)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QueuedViewHolder {
@@ -60,21 +68,41 @@ class QueuedAdapter :
         val currentItem = items[position]
         holder.name.text = currentItem.fileName
         holder.status.text = currentItem.fileName
+        val status = currentItem.downloadStatus
+        if (status != Tdutils.STRING_FETCHING) {
+            holder.progressBarView.isIndeterminate = false
+            holder.progressBarView.progress = currentItem.progress.toInt()
+        } else {
+            holder.progressBarView.isIndeterminate = true
+        }
+        if (status == Tdutils.STRING_FAILED) {
+            holder.retryCancel.setImageResource(R.drawable.refresh_24)
+        } else {
+            holder.retryCancel.setImageResource(com.google.android.material.R.drawable.mtrl_ic_cancel)
+        }
+
+        holder.itemView.setOnClickListener {
+            onItemClickListener?.invoke(currentItem)
+            // You can perform additional actions here if needed
+            Toast.makeText(
+                holder.itemView.context,
+                "Clicked ${currentItem.teraboxFileUrl}",
+                Toast.LENGTH_SHORT
+            ).show()
+            d("Clicked", "Clicked ${currentItem.teraboxFileUrl}")
+        }
 //        holder.itemView.setOnClickListener {
 //            onItemClickListener?.let { it(currentItem) }
 //        }
 
         holder.itemView.setOnClickListener {
-            onStringItemClickClickListener?.let { it(currentItem.teraboxFileUrl) }
+            onItemClickListener?.invoke(currentItem)
         }
-    }
 
-    fun setOnItemClickListener(listener: (DownloadingTable) -> Unit) {
-        onItemClickListener = listener
-    }
-
-    fun setOnStringItemClickListener(listener: (String) -> Unit) {
-        onStringItemClickClickListener = listener
+        //if Cancel button is clicked
+        holder.retryCancel.setOnClickListener {
+            //remove the item from the list and remove from the DB
+        }
     }
 
 
@@ -92,6 +120,5 @@ class QueuedAdapter :
 
     //ClickListener
 
-    private var onItemClickListener: ((DownloadingTable) -> Unit)? = null
-    private var onStringItemClickClickListener: ((String) -> Unit)? = null
+    private var onItemClickListener: ((TDDownloadModel) -> Unit)? = null
 }
