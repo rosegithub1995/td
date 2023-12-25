@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import kotlin.coroutines.resume
 
 class TeraboxRepository(
     private val database: DBTeraboxDatabase
@@ -22,26 +23,40 @@ class TeraboxRepository(
         RetrofitInstance.getTDRetrofitInstance().create(RetrofitService::class.java)
 
     //get the details ofn the link
-    suspend fun fetchLinkDetails(mTeraboxFileUrl: String, mContext: Context): TDPojo {
-        //fetch information from the link
-        val mResponse = mRetrofitService.getTdlink(mTeraboxFileUrl)
-        var mTdPojo: TDPojo? = null
-        GlobalScope.launch {
-            mResponse.enqueue(object : Callback<TDPojo> {
-                override fun onResponse(call: Call<TDPojo>, response: Response<TDPojo>) {
-                    if (response.isSuccessful) {
-                        mTdPojo = response.body()!!
-                        d("Error in retrofit call", mTdPojo.toString());
+    // Use suspend function to perform asynchronous operation
+    suspend fun fetchLinkDetails(mTeraboxFileUrl: String, mContext: Context): TDPojo? {
+        return try {
+            // Use suspendCoroutine to convert callback-based API to a coroutine
+            val mTdPojo = kotlinx.coroutines.suspendCancellableCoroutine<TDPojo?> { continuation ->
+                GlobalScope.launch {
+
+                    mRetrofitService.getTdlink(mTeraboxFileUrl).enqueue(object : Callback<TDPojo> {
+                        override fun onResponse(call: Call<TDPojo>, response: Response<TDPojo>) {
+                            if (response.isSuccessful) {
+                                continuation.resume(response.body())
+                            } else {
+                                continuation.resume(null)
+                            }
+                        }
+
+                        override fun onFailure(call: Call<TDPojo>, t: Throwable) {
+                            continuation.resume(null)
+                        }
+                    })
+
+                    // Handle cancellation
+                    continuation.invokeOnCancellation {
+                        //call.cancel()
                     }
                 }
+            }
 
-                override fun onFailure(call: Call<TDPojo>, t: Throwable) {
-                    d("Error in retrofit call", "Retrofit call error ", t);
-                    Tdutils.displayToastLong(mContext, "Could not fetch details");
-                }
-            })
+            mTdPojo
+        } catch (e: Exception) {
+            d("Error in retrofit call", "Retrofit call error ", e)
+            Tdutils.displayToastLong(mContext, "Could not fetch details")
+            null
         }
-        return mTdPojo!!
     }
 
 

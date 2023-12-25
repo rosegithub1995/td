@@ -9,6 +9,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.terradownloader.R
 import com.example.terradownloader.model.TDDownloadModel
 import com.example.terradownloader.utils.Tdutils
@@ -51,10 +52,12 @@ class QueuedAdapter :
 //    val stringDiffer = AsyncListDiffer(this, stringDifferCallback)
 
     inner class QueuedViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val name: TextView = itemView.findViewById(R.id.file_title)
-        val status: TextView = itemView.findViewById(R.id.file_size)
+        val image: ImageView = itemView.findViewById(R.id.iv_file_icon)
+        val name: TextView = itemView.findViewById(R.id.tv_file_name)
+        val size: TextView = itemView.findViewById(R.id.tv_file_size)
         val progressBarView: ProgressBar = itemView.findViewById(R.id.file_progress)
-        val retryCancel: ImageView = itemView.findViewById(R.id.file_cancel)
+        val retryCancel: ImageView = itemView.findViewById(R.id.iv_file_cancel)
+        val filePercent: TextView = itemView.findViewById(R.id.tv_file_percent)
 
     }
 
@@ -67,7 +70,7 @@ class QueuedAdapter :
     override fun onBindViewHolder(holder: QueuedViewHolder, position: Int) {
         val currentItem = items[position]
         holder.name.text = currentItem.fileName
-        holder.status.text = currentItem.fileName
+        holder.size.text = "Size: " + currentItem.fileSize
         val status = currentItem.downloadStatus
         if (status != Tdutils.STRING_FETCHING) {
             holder.progressBarView.isIndeterminate = false
@@ -80,6 +83,11 @@ class QueuedAdapter :
         } else {
             holder.retryCancel.setImageResource(com.google.android.material.R.drawable.mtrl_ic_cancel)
         }
+        holder.filePercent.text = currentItem.progress.toInt().toString() + "% Completed"
+
+        Glide.with(holder.itemView.context).load(currentItem.thumbnailUrl1)
+            .placeholder(R.drawable.baseline_image_24)
+            .into(holder.image)
 
         holder.itemView.setOnClickListener {
             onItemClickListener?.invoke(currentItem)
